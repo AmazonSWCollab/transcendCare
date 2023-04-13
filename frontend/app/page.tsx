@@ -1,7 +1,9 @@
+import LandingScreen from "@/components/LandingScreen/LandingScreen";
+// This is the page for the landing screen
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="font-bold text-lg">TranscendCare</div>
+    <main className="flex flex-col items-center justify-between p-8">
+      <LandingScreen />
     </main>
   );
 }

@@ -12,7 +12,7 @@ module.exports = {
         purple_main: "#C5A3CB",
       },
       fontFamily: {
-        lexend: ["Lexend"],
+        sans: ["var(--font-lexend)"],
       },
     },
   },
