@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${fontLexend.variable} w-[100vw] h-[100vh] font-sans bg-pink_bg`}
+        className={`${fontLexend.variable} p-8 w-[100vw] h-[100vh] font-sans bg-pink_bg`}
       >
         {children}
       </body>
