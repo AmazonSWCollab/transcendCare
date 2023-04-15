@@ -1,6 +1,6 @@
 import React from "react";
 import AuthButton from "../Common/Button/AuthButton";
-import {BsGoogle} from "react-icons/bs";
+import { BsGoogle } from "react-icons/bs";
 
 const AuthForm = () => {
   return (
