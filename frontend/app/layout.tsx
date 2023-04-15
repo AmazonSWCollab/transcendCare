@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs/app-beta";
 import "./globals.css";
 import { Lexend } from "next/font/google";
 // This is the layout page for the landing screen and its children page
@@ -18,11 +19,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className={`${fontLexend.variable} p-8 w-[100vw] h-[100vh] font-sans bg-pink_bg`}
-      >
-        {children}
-      </body>
+      <ClerkProvider>
+        <body
+          className={`${fontLexend.variable} p-8 w-[100vw] h-[100vh] font-sans bg-pink_bg`}
+        >
+          {children}
+        </body>
+      </ClerkProvider>
     </html>
   );
 }
