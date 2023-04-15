@@ -2,6 +2,7 @@
 import React from "react";
 import Banner from "./Banner";
 import { usePathname } from "next/navigation";
+import AuthForm from "./AuthForm";
 const AuthScreen: React.FC = () => {
   const name = usePathname();
   const isSigninPage = name == "/signin" ? true : false;
@@ -13,6 +14,7 @@ const AuthScreen: React.FC = () => {
             title="Welcome back"
             subtitle="Let’s make your healthcare easier with us"
           />
+          <AuthForm />
         </>
       ) : (
         <></>
