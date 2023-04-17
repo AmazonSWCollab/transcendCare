@@ -4,6 +4,9 @@ dependencies:
   "@clerk/nextjs":
     specifier: ^4.16.2
     version: 4.16.2(next@13.3.0)(react-dom@18.2.0)(react@18.2.0)
+  "@clerk/types":
+    specifier: ^3.35.1
+    version: 3.35.1
   "@types/node":
     specifier: 18.15.11
     version: 18.15.11
