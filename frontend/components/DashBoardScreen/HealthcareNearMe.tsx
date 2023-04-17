@@ -1,11 +1,11 @@
 import React from "react";
-import GeneralCard from "../Common/Card/GeneralCard";
+import DashBoardCard from "../Common/Card/DashBoardCard";
 
 const HealthcareNearMe = () => {
   return (
     <div className="mt-10">
       {/* This should be dynamic with data from API */}
-      <GeneralCard
+      <DashBoardCard
         header="Healthcare Near Me"
         title="Transcend Health Clinic"
         subtitle="4567 Main Street"

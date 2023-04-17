@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React from "react";
-interface GeneralCardProps {
+interface DashBoardCardProps {
   header?: string;
   title: string;
   subtitle: string;
@@ -11,7 +11,7 @@ interface GeneralCardProps {
   link?: string;
   pic?: string;
 }
-const GeneralCard: React.FC<GeneralCardProps> = ({
+const DashBoardCard: React.FC<DashBoardCardProps> = ({
   header,
   title,
   subtitle,
@@ -48,4 +48,4 @@ const GeneralCard: React.FC<GeneralCardProps> = ({
   );
 };
 
-export default GeneralCard;
+export default DashBoardCard;

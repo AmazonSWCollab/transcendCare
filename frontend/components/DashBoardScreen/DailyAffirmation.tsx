@@ -1,10 +1,10 @@
 import React from "react";
-import GeneralCard from "../Common/Card/GeneralCard";
+import DashBoardCard from "../Common/Card/DashBoardCard";
 
 const DailyAffirmation = () => {
   return (
     <>
-      <GeneralCard
+      <DashBoardCard
         title="Daily Affirmation"
         subtitle="I am capable of achieving my goals"
         color="#D5E1E0"
