@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Header from "./Header";
 import FullLoading from "../Common/Loading/FullLoading";
+import DailyAffirmation from "./DailyAffirmation";
+import Medication from "./Medication";
+import HealthcareNearMe from "./HealthcareNearMe";
 
 const DashBoardScreen = () => {
   const { isLoaded, userId } = useAuth();
@@ -23,9 +26,12 @@ const DashBoardScreen = () => {
   }, [user]);
 
   return (
-    <section>
+    <section className="w-[100vw] h-[100vh] bg-white m-[-2rem] p-8">
       {isLoading && <FullLoading />}
       <Header user={user} />
+      <DailyAffirmation />
+      <Medication />
+      <HealthcareNearMe />
     </section>
   );
 };
