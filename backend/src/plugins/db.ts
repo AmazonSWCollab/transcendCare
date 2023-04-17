@@ -1,15 +1,24 @@
 import fp from "fastify-plugin";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { FastifyPluginAsync } from "fastify";
+import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { db, pgClient } from "../db";
 
-interface DrizzlePluginOptions {
+declare module "fastify" {
+  interface FastifyInstance {
+    db: PostgresJsDatabase;
+  }
 }
 
-export default fp<DrizzlePluginOptions>(async (fastify) => {
-  // TODO: add a Railway Postgres DB
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-  });
-  const db = drizzle(pool);
-  fastify.decorate("db", db);
-});
+interface DrizzlePluginOptions {}
+
+const drizzlePlugin: FastifyPluginAsync<DrizzlePluginOptions> = fp(
+  async (fastify) => {
+    fastify.decorate("db", db);
+    fastify.addHook("onClose", async (server) => {
+      console.info(`Disconnected from database: ${process.env.DATABASE_URL}`);
+      pgClient.end();
+    });
+  }
+);
+
+export default drizzlePlugin;

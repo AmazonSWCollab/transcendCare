@@ -66,3 +66,4 @@ dist
 .env
 .env.local
 drizzle
+drizzle.config.json
