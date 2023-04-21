@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 import Header from "./Header";
 import FullLoading from "../Common/Loading/FullLoading";
 import DailyAffirmation from "./DailyAffirmation";
-import Medication from "./Medication";
 import HealthcareNearMe from "./HealthcareNearMe";
+import OnlineConsultations from "./OnlineConsultations";
+import CommunityForum from "./CommunityForum";
 //Dashboard screen component for user after they signed in
 const DashBoardScreen = () => {
   const { isLoaded, userId } = useAuth();
@@ -30,8 +31,9 @@ const DashBoardScreen = () => {
       {isLoading && <FullLoading />}
       <Header user={user} />
       <DailyAffirmation />
-      <Medication />
       <HealthcareNearMe />
+      <OnlineConsultations />
+      <CommunityForum />
     </section>
   );
 };
