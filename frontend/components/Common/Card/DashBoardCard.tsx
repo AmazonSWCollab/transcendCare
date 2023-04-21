@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+// This represents a card in the dashboard
 interface DashBoardCardProps {
   header?: string;
   title: string;

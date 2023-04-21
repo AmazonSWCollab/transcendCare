@@ -1,5 +1,5 @@
 import React from "react";
-// This is the children component for <Landing Screen/>
+// This is the children component for <Landing Screen/> that displays cool text
 const Banner = () => {
   return (
     <div>

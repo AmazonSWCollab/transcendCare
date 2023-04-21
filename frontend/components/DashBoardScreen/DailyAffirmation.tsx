@@ -1,6 +1,6 @@
 import React from "react";
 import DashBoardCard from "../Common/Card/DashBoardCard";
-
+//DailyAffirmation items that give user motivational quote daily
 const DailyAffirmation = () => {
   return (
     <>

@@ -2,6 +2,7 @@
 import { UserButton } from "@clerk/nextjs";
 import React from "react";
 import { UserResource } from "@clerk/types";
+//This is dashboard header that displays user avatar, greeting, user profile,...
 interface HeaderProps {
   user: UserResource | null | undefined;
 }

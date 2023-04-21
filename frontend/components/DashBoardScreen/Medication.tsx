@@ -1,5 +1,5 @@
 import React from "react";
-
+//Medication item to remind user taking their medication
 const Medication = () => {
   return (
     <div className="mt-10">

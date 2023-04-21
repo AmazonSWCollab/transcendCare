@@ -2,7 +2,6 @@
 import Banner from "./Banner";
 import { useAuth } from "@clerk/nextjs";
 import { SignOutButton } from "@clerk/nextjs";
-
 import LinkButton from "../Common/Button/LinkButton";
 // This is the main component for app/page.tsx aka the Landing Screen
 const LandingScreen = () => {

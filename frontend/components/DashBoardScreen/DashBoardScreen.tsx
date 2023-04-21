@@ -7,7 +7,7 @@ import FullLoading from "../Common/Loading/FullLoading";
 import DailyAffirmation from "./DailyAffirmation";
 import Medication from "./Medication";
 import HealthcareNearMe from "./HealthcareNearMe";
-
+//Dashboard screen component for user after they signed in
 const DashBoardScreen = () => {
   const { isLoaded, userId } = useAuth();
   const [isLoading, setLoading] = useState(false);

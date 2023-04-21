@@ -1,6 +1,6 @@
 import React from "react";
 import DashBoardCard from "../Common/Card/DashBoardCard";
-
+//HealthcareNearMe items that suggest trans friendly healthcare nearby them
 const HealthcareNearMe = () => {
   return (
     <div className="mt-10">

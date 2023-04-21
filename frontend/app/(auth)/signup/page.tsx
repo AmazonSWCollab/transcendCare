@@ -1,5 +1,5 @@
 import { SignUp } from "@clerk/nextjs/app-beta";
-
+// This is the sign up page
 export default function signup() {
   return (
     <section className="px-10 h-[100vh] flex flex-col justify-center items-center">
