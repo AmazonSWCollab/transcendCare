@@ -7,6 +7,12 @@
       "version": "5",
       "when": 1681690817810,
       "tag": "0000_superb_thundra"
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1682380093769,
+      "tag": "0001_burly_butterfly"
     }
   ]
 }
