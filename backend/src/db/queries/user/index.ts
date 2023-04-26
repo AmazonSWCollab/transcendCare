@@ -1,23 +1,26 @@
-import { db } from '../db';
+import { db } from '../../index';
+import { users, User } from '../../schema/users';
+import { eq } from 'drizzle-orm';
+
 
 export async function findUnique(id: number): Promise<User | null> {
-	const users = await db.select().from(users).where(eq(users.id, id));
-	if (users.length < 1) {
+	const userSelected = await db.select().from(users).where(eq(users.id, id));
+	if (userSelected.length < 1) {
 	    return null;
 	}
-	retrurn users[0];
+	return userSelected[0];
 }
 
-export async function createNewUser(firstName, lastName): Promise<User | null> {
-	const users = await db.insert(users).values({ firstName: firstName, lastName: lastName }).returning();
-	if (users.length < 1) {
+export async function createNewUser(firstName: string, lastName: string) {
+	const userSelected = await db.insert(users).values({ firstName: firstName, lastName: lastName }).returning();
+	if (userSelected.length < 1) {
 		return null;
 	}
-	return users[0];
+	return userSelected[0];
 }
 
-export async function patchUserName(id, firstName, lastName) {
-	const users = await db.update(users).where(eq(users.id, id)).values({ users.firstName: firstName, users.lastName: lastName }).returning();
+export async function patchUserName(id: number, firstName: string, lastName: string) {
+	const userSelected = await db.update(users).where(eq(users.id, id)).values({firstName: firstName, lastName: lastName }).returning();
 	if (users.length < 1) {
 		return null;
 	}
