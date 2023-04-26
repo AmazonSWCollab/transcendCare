@@ -10,7 +10,7 @@ interface FastifyEnvOptionsSchema {
 interface FastifyEnvOptions {
   schema: FastifyEnvOptionsSchema;
 }
-
+// TODO: refactor using TypeBox
 const schema: FastifyEnvOptionsSchema = {
   type: "object",
   required: ["PORT"],

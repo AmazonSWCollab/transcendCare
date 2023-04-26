@@ -3,10 +3,12 @@ import cors from "@fastify/cors";
 
 interface CorsPluginOptions {
   origin: string;
+  allowHeaders: string[]
 }
 
 export default fp<CorsPluginOptions>(async (fastify) => {
   fastify.register(cors, {
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_ORIGIN,
+    allowedHeaders: ['Authorization'],
   });
 });
