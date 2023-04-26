@@ -13,7 +13,7 @@ export const roleEnum = pgEnum("role", ["user", "admin"]);
 
 export const identityEnum = pgEnum("identity", [
   "non-binary",
-  "transgender"
+  "transgender",
   "other",
 ]);
 

@@ -5,11 +5,29 @@ import {
 } from "@fastify/type-provider-typebox";
 import { cities } from "../../db/schema/cities";
 import { users, NewUser } from "../../db/schema/users";
+import { findUnique } from "../../db/queries/users";
+
+
 
 const userRouter: FastifyPluginAsyncTypebox = async (
-  fastify,
-  _opts
-): Promise<void> => {
+    const UserResponse = Type.Object({
+	    id: Type.Number(),
+	    firstName: Type.String(),
+	    lastName: Type.String(),
+	    preferredName: Type.Optional(Type.String()),
+	    role: Type.Union([Type.Literal("user"), Type.Literal("admin")]),
+	    cityId: Type.Union([Type.Number(), Type.Null()]),
+	    dateOfBirth: Type.String({ format: "date" }),
+	    createdAt: Type.String({ format: "date-time" }),
+	    updatedAt: Type.String({ format: "date-time" }),
+	    identity: Type.Union([Type.Literal("non-binary"), Type.Literal("transgender"), Type.Literal("other")]),
+	    otherIdentity: Type.Optional(Type.String()),
+	    pronouns: Type.Union([Type.Literal("they/them/theirs"), Type.Literal("she/her/hers"), Type.Literal("he/him/his"), Type.Literal("custom")]),
+	    customPronouns: Type.Optional(Type.String())
+    });
+    fastify,
+      _opts
+    ): Promise<void> => {
   // get user by id
   fastify.get(
     "/:id",
@@ -19,28 +37,17 @@ const userRouter: FastifyPluginAsyncTypebox = async (
           id: Type.Number(),
         }),
         response: {
-          200: Type.Object({
-            id: Type.Number(),
-            fullName: Type.String(),
-            phone: Type.String(),
-            role: Type.Union([Type.Literal("user"), Type.Literal("admin")]),
-            cityId: Type.Union([Type.Number(), Type.Null()]),
-            createdAt: Type.String({ format: "date-time" }),
-            updatedAt: Type.String({ format: "date-time" }),
-          }),
+          200: UserResponse,
         },
       },
     },
     async (request, reply) => {
       const { id } = request.params;
-      const userSelect = await fastify.db
-        .select()
-        .from(users)
-        .where(eq(users.id, id));
+      const user = await findUnique(id);
       const userObject = {
-        ...userSelect[0],
-        createdAt: userSelect[0].createdAt.toISOString(),
-        updatedAt: userSelect[0].updatedAt.toISOString(),
+        ...user,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
       };
       reply.status(200).send(userObject);
     }
@@ -57,15 +64,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
           city: Type.String(),
         }),
         response: {
-          201: Type.Object({
-            id: Type.Number(),
-            fullName: Type.String(),
-            phone: Type.String(),
-            role: Type.Union([Type.Literal("user"), Type.Literal("admin")]),
-            cityId: Type.Union([Type.Number(), Type.Null()]),
-            createdAt: Type.String({ format: "date-time" }),
-            updatedAt: Type.String({ format: "date-time" }),
-          }),
+          201: UserResponse 
         },
       },
     },
@@ -76,7 +75,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
         .select()
         .from(cities)
         .where(eq(cities.name, city));
-      // Account for  invalid city names
+      // Account for  invalid city name
       if (citySelect.length < 1) {
         const insertCity = await fastify.db
           .insert(cities)
