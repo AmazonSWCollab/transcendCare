@@ -8,6 +8,7 @@ import {
   findUnique,
   patchUserCity,
   patchUserFullName,
+  patchUserPreferredName,
 } from "../../db/queries/user";
 
 const userRouter: FastifyPluginAsyncTypebox = async (
@@ -107,6 +108,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     "/:id/update/name",
     {
       schema: {
+        prehandler: AuthPrehandler,
         params: Type.Object({
           id: Type.Number(),
         }),
@@ -138,44 +140,47 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     }
   );
 
-  // // update user phone
-  // fastify.patch(
-  //   "/:id/update/phone",
-  //   {
-  //     schema: {
-  //       params: Type.Object({
-  //         id: Type.Number(),
-  //       }),
-  //       body: Type.Object({
-  //         phone_number: Type.String(),
-  //       }),
-  //       response: {
-  //         200: UserResponse,
-  //       },
-  //     },
-  //   },
-  //   async (request, reply) => {
-  //     const { phone_number } = request.body;
-  //     const user_id = request.params.id;
-  //     const user = await fastify.db
-  //       .update(users)
-  //       .set({ phone: phone_number, updatedAt: new Date() })
-  //       .where(eq(users.id, user_id))
-  //       .returning();
-  //     const userRes = {
-  //       ...user[0],
-  //       createdAt: user[0].createdAt.toString(),
-  //       updatedAt: user[0].updatedAt.toUTCString(),
-  //     };
-  //     reply.status(200).send(userRes);
-  //   }
-  // );
+  // update user preferred name
+  fastify.patch(
+    "/:id/update/preferredName",
+    {
+      schema: {
+        params: Type.Object({
+          id: Type.Number(),
+        }),
+        body: Type.Object({
+          preferredName: Type.String(),
+        }),
+        response: {
+          200: UserResponse,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { preferredName } = request.body;
+      const user_id = request.params.id;
+      const user = await patchUserPreferredName(user_id, preferredName);
+
+      if (!user) {
+        throw Error("User does not exit");
+      }
+
+      const userRes = {
+        ...user,
+        createdAt: user.createdAt.toString(),
+        updatedAt: user.updatedAt.toUTCString(),
+      };
+
+      reply.status(200).send(userRes);
+    }
+  );
 
   // update user city
   fastify.patch(
     "/:id/update/city",
     {
       schema: {
+        prehandler: AuthPrehandler,
         params: Type.Object({
           id: Type.Number(),
         }),
