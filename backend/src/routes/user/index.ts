@@ -10,6 +10,9 @@ import { findUnique } from "../../db/queries/users";
 
 
 const userRouter: FastifyPluginAsyncTypebox = async (
+      fastify,
+      _opts
+): Promise<void> => {
     const UserResponse = Type.Object({
 	    id: Type.Number(),
 	    firstName: Type.String(),
@@ -25,9 +28,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
 	    pronouns: Type.Union([Type.Literal("they/them/theirs"), Type.Literal("she/her/hers"), Type.Literal("he/him/his"), Type.Literal("custom")]),
 	    customPronouns: Type.Optional(Type.String())
     });
-    fastify,
-      _opts
-    ): Promise<void> => {
+    
   // get user by id
   fastify.get(
     "/:id",
