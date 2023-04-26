@@ -1,39 +1,52 @@
-import { eq } from "drizzle-orm";
 import {
   Type,
   FastifyPluginAsyncTypebox,
 } from "@fastify/type-provider-typebox";
-import { cities } from "../../db/schema/cities";
-import { users, NewUser } from "../../db/schema/users";
-import { findUnique } from "../../db/queries/users";
-
-
+import { AuthPrehandler } from "../../prehandlers/auth";
+import {
+  createNewUser,
+  findUnique,
+  patchUserCity,
+  patchUserFullName,
+} from "../../db/queries/user";
 
 const userRouter: FastifyPluginAsyncTypebox = async (
-      fastify,
-      _opts
+  fastify,
+  _opts
 ): Promise<void> => {
-    const UserResponse = Type.Object({
-	    id: Type.Number(),
-	    firstName: Type.String(),
-	    lastName: Type.String(),
-	    preferredName: Type.Optional(Type.String()),
-	    role: Type.Union([Type.Literal("user"), Type.Literal("admin")]),
-	    cityId: Type.Union([Type.Number(), Type.Null()]),
-	    dateOfBirth: Type.String({ format: "date" }),
-	    createdAt: Type.String({ format: "date-time" }),
-	    updatedAt: Type.String({ format: "date-time" }),
-	    identity: Type.Union([Type.Literal("non-binary"), Type.Literal("transgender"), Type.Literal("other")]),
-	    otherIdentity: Type.Optional(Type.String()),
-	    pronouns: Type.Union([Type.Literal("they/them/theirs"), Type.Literal("she/her/hers"), Type.Literal("he/him/his"), Type.Literal("custom")]),
-	    customPronouns: Type.Optional(Type.String())
-    });
-    
+  const UserResponse = Type.Object({
+    id: Type.Number(),
+    firstName: Type.String(),
+    lastName: Type.String(),
+    preferredName: Type.Union([Type.String(), Type.Null()]),
+    role: Type.Union([Type.Literal("user"), Type.Literal("admin")]),
+    cityId: Type.Union([Type.Number(), Type.Null()]),
+    dateOfBirth: Type.Union([Type.String({ format: "date" }), Type.Null()]),
+    createdAt: Type.Union([Type.String({ format: "date-time" }), Type.Date()]),
+    updatedAt: Type.Union([Type.String({ format: "date-time" }), Type.Date()]),
+    identity: Type.Union([
+      Type.Literal("non-binary"),
+      Type.Literal("transgender"),
+      Type.Literal("other"),
+      Type.Null(),
+    ]),
+    otherIdentity: Type.Union([Type.String(), Type.Null()]),
+    pronouns: Type.Union([
+      Type.Literal("they/them/theirs"),
+      Type.Literal("she/her/hers"),
+      Type.Literal("he/him/his"),
+      Type.Literal("custom"),
+      Type.Null(),
+    ]),
+    customPronouns: Type.Union([Type.String(), Type.Null()]),
+  });
+
   // get user by id
   fastify.get(
     "/:id",
     {
       schema: {
+        prehandler: AuthPrehandler,
         params: Type.Object({
           id: Type.Number(),
         }),
@@ -45,12 +58,12 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     async (request, reply) => {
       const { id } = request.params;
       const user = await findUnique(id);
-      const userObject = {
-        ...user,
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
-      };
-      reply.status(200).send(userObject);
+      // the case where the user id is invalid
+      if (!user) {
+        throw Error("User does not exist");
+      }
+      // otherwise send user object
+      reply.status(200).send(user);
     }
   );
 
@@ -59,45 +72,32 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     "/create",
     {
       schema: {
+        prehandler: AuthPrehandler,
         body: Type.Object({
-          fullName: Type.String(),
-          phone: Type.String(),
-          city: Type.String(),
+          firstName: Type.String(),
+          lastName: Type.String(),
+          cityName: Type.String(),
         }),
         response: {
-          201: UserResponse 
+          201: UserResponse,
         },
       },
     },
     async (request, reply) => {
-      const { fullName, phone, city } = request.body;
-      // get the id of the city the user names
-      const citySelect = await fastify.db
-        .select()
-        .from(cities)
-        .where(eq(cities.name, city));
-      // Account for  invalid city name
-      if (citySelect.length < 1) {
-        const insertCity = await fastify.db
-          .insert(cities)
-          .values({ name: city })
-          .returning();
-        citySelect.push(insertCity[0]);
-      }
+      const { firstName, lastName, cityName } = request.body;
       // create new user & insert
-      const user: NewUser = {
-        fullName: fullName,
-        phone: phone,
-        cityId: citySelect[0].id,
-        role: "user",
-        createdAt: new Date(),
-      };
-      const response = await fastify.db.insert(users).values(user).returning();
+      const user = await createNewUser(firstName, lastName, cityName);
+      // if for some reason there is an issue creating this user
+      if (!user) {
+        throw Error("User does not exit!");
+      }
+      // update the date fields
       const userRes = {
-        ...response[0],
-        createdAt: response[0].createdAt.toString(),
-        updatedAt: response[0].updatedAt.toUTCString(),
+        ...user,
+        createdAt: user.createdAt.toString(),
+        updatedAt: user.updatedAt.toUTCString(),
       };
+
       reply.status(201).send(userRes);
     }
   );
@@ -111,7 +111,8 @@ const userRouter: FastifyPluginAsyncTypebox = async (
           id: Type.Number(),
         }),
         body: Type.Object({
-          full_name: Type.String(),
+          firstName: Type.String(),
+          lastName: Type.String(),
         }),
         response: {
           200: UserResponse,
@@ -119,54 +120,56 @@ const userRouter: FastifyPluginAsyncTypebox = async (
       },
     },
     async (request, reply) => {
-      const { full_name } = request.body;
+      const { firstName, lastName } = request.body;
       const user_id = request.params.id;
-      const user = await fastify.db
-        .update(users)
-        .set({ fullName: full_name, updatedAt: new Date() })
-        .where(eq(users.id, user_id))
-        .returning();
+      const user = await patchUserFullName(user_id, firstName, lastName);
+
+      if (!user) {
+        throw Error("User does not exist");
+      }
+
       const userRes = {
-        ...user[0],
-        createdAt: user[0].createdAt.toString(),
-        updatedAt: user[0].updatedAt.toUTCString(),
+        ...user,
+        createdAt: user.createdAt.toString(),
+        updatedAt: user.updatedAt.toUTCString(),
       };
+
       reply.status(200).send(userRes);
     }
   );
 
-  // update user phone
-  fastify.patch(
-    "/:id/update/phone",
-    {
-      schema: {
-        params: Type.Object({
-          id: Type.Number(),
-        }),
-        body: Type.Object({
-          phone_number: Type.String(),
-        }),
-        response: {
-          200: UserResponse,
-        },
-      },
-    },
-    async (request, reply) => {
-      const { phone_number } = request.body;
-      const user_id = request.params.id;
-      const user = await fastify.db
-        .update(users)
-        .set({ phone: phone_number, updatedAt: new Date() })
-        .where(eq(users.id, user_id))
-        .returning();
-      const userRes = {
-        ...user[0],
-        createdAt: user[0].createdAt.toString(),
-        updatedAt: user[0].updatedAt.toUTCString(),
-      };
-      reply.status(200).send(userRes);
-    }
-  );
+  // // update user phone
+  // fastify.patch(
+  //   "/:id/update/phone",
+  //   {
+  //     schema: {
+  //       params: Type.Object({
+  //         id: Type.Number(),
+  //       }),
+  //       body: Type.Object({
+  //         phone_number: Type.String(),
+  //       }),
+  //       response: {
+  //         200: UserResponse,
+  //       },
+  //     },
+  //   },
+  //   async (request, reply) => {
+  //     const { phone_number } = request.body;
+  //     const user_id = request.params.id;
+  //     const user = await fastify.db
+  //       .update(users)
+  //       .set({ phone: phone_number, updatedAt: new Date() })
+  //       .where(eq(users.id, user_id))
+  //       .returning();
+  //     const userRes = {
+  //       ...user[0],
+  //       createdAt: user[0].createdAt.toString(),
+  //       updatedAt: user[0].updatedAt.toUTCString(),
+  //     };
+  //     reply.status(200).send(userRes);
+  //   }
+  // );
 
   // update user city
   fastify.patch(
@@ -188,28 +191,16 @@ const userRouter: FastifyPluginAsyncTypebox = async (
       const { city_name } = request.body;
       const user_id = request.params.id;
       // get the id of the city the user names
-      const citySelect = await fastify.db
-        .select()
-        .from(cities)
-        .where(eq(cities.name, city_name));
-      // Account for  invalid city names
-      if (citySelect.length < 1) {
-        const insertCity = await fastify.db
-          .insert(cities)
-          .values({ name: city_name })
-          .returning();
-        citySelect.push(insertCity[0]);
+      const user = await patchUserCity(user_id, city_name);
+
+      if (!user) {
+        throw Error("User does not exist");
       }
-      // Now update user
-      const user = await fastify.db
-        .update(users)
-        .set({ cityId: citySelect[0].id, updatedAt: new Date() })
-        .where(eq(users.id, user_id))
-        .returning();
+
       const userRes = {
-        ...user[0],
-        createdAt: user[0].createdAt.toString(),
-        updatedAt: user[0].updatedAt.toUTCString(),
+        ...user,
+        createdAt: user.createdAt.toString(),
+        updatedAt: user.updatedAt.toUTCString(),
       };
       reply.status(200).send(userRes);
     }
