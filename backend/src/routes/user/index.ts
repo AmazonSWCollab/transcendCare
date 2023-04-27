@@ -2,14 +2,16 @@ import {
   Type,
   FastifyPluginAsyncTypebox,
 } from "@fastify/type-provider-typebox";
-import { AuthPrehandler } from "../../prehandlers/auth";
+import { AuthPrehandler } from "../../services/prehandlers/auth";
 import {
   createNewUser,
   findUnique,
   patchUserCity,
-  patchUserFullName,
+  patchUserFirstName,
+  patchUserLastName,
   patchUserPreferredName,
-} from "../../db/queries/user";
+  updateUser,
+} from "../../services/user";
 
 const userRouter: FastifyPluginAsyncTypebox = async (
   fastify,
@@ -25,6 +27,30 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     dateOfBirth: Type.Union([Type.String({ format: "date" }), Type.Null()]),
     createdAt: Type.Union([Type.String({ format: "date-time" }), Type.Date()]),
     updatedAt: Type.Union([Type.String({ format: "date-time" }), Type.Date()]),
+    identity: Type.Union([
+      Type.Literal("non-binary"),
+      Type.Literal("transgender"),
+      Type.Literal("other"),
+      Type.Null(),
+    ]),
+    otherIdentity: Type.Union([Type.String(), Type.Null()]),
+    pronouns: Type.Union([
+      Type.Literal("they/them/theirs"),
+      Type.Literal("she/her/hers"),
+      Type.Literal("he/him/his"),
+      Type.Literal("custom"),
+      Type.Null(),
+    ]),
+    customPronouns: Type.Union([Type.String(), Type.Null()]),
+  });
+
+  const UserRequest = Type.Object({
+    id: Type.Number(),
+    firstName: Type.String(),
+    lastName: Type.String(),
+    preferredName: Type.Union([Type.String(), Type.Null()]),
+    cityId: Type.Union([Type.Number(), Type.Null()]),
+    dateOfBirth: Type.Union([Type.String({ format: "date" }), Type.Null()]),
     identity: Type.Union([
       Type.Literal("non-binary"),
       Type.Literal("transgender"),
@@ -74,20 +100,16 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     {
       schema: {
         prehandler: AuthPrehandler,
-        body: Type.Object({
-          firstName: Type.String(),
-          lastName: Type.String(),
-          cityName: Type.String(),
-        }),
+        body: UserRequest,
         response: {
           201: UserResponse,
         },
       },
     },
     async (request, reply) => {
-      const { firstName, lastName, cityName } = request.body;
+      const newUser = request.body;
       // create new user & insert
-      const user = await createNewUser(firstName, lastName, cityName);
+      const user = await createNewUser(newUser);
       // if for some reason there is an issue creating this user
       if (!user) {
         throw Error("User does not exit!");
@@ -100,6 +122,40 @@ const userRouter: FastifyPluginAsyncTypebox = async (
       };
 
       reply.status(201).send(userRes);
+    }
+  );
+
+  fastify.put(
+    "/:id/udpate/",
+    {
+      schema: {
+        prehandler: AuthPrehandler,
+        params: Type.Object({
+          id: Type.Number(),
+        }),
+        body: UserRequest,
+        response: {
+          200: UserResponse,
+        },
+      },
+    },
+    async (request, reply) => {
+      const newUserData = request.body;
+      const user_id = request.params.id;
+
+      const user = await updateUser(user_id, newUserData);
+
+      if (!user) {
+        throw Error("User does not exist");
+      }
+
+      const userRes = {
+        ...user,
+        createdAt: user.createdAt.toString(),
+        updatedAt: user.updatedAt.toUTCString(),
+      };
+
+      reply.status(200).send(userRes);
     }
   );
 

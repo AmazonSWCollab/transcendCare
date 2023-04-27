@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { db } from "../..";
-import { cities } from "../../schema/cities";
+import { db } from "../../db";
+import { cities } from "../../db/schema/cities";
 
 export async function getCity(cityName: string) {
   const citySelect = await db
