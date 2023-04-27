@@ -12,11 +12,6 @@ const app: FastifyPluginAsync<AppOptions> = async (
   fastify,
   opts
 ): Promise<void> => {
-  // This loads all plugins defined in services
-  void fastify.register(AutoLoad, {
-    dir: join(__dirname, "services"),
-    options: opts,
-  });
 
   // This loads all plugins defined in plugins
   void fastify.register(AutoLoad, {

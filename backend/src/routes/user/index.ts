@@ -5,7 +5,7 @@ import {
 } from "@fastify/type-provider-typebox";
 import { AuthPrehandler } from "../../services/prehandlers/auth";
 import {
-  createNewUser,
+  // createNewUser,
   findUnique,
   patchUserFirstName,
   patchUserLastName,
@@ -15,7 +15,7 @@ import {
   patchUserDOB,
   patchUserIdentity,
   patchUserPronouns,
-  updateUser,
+  // updateUser,
 } from "../../services/user";
 
 const userRouter: FastifyPluginAsyncTypebox = async (
@@ -50,32 +50,32 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     customPronouns: Type.Union([Type.String(), Type.Null()]),
   });
 
-  const UserRequest = Type.Object({
-    id: Type.Number(),
-    userId: Type.String(),
-    firstName: Type.String(),
-    lastName: Type.String(),
-    preferredName: Type.Union([Type.String(), Type.Null()]),
-    cityId: Type.Union([Type.Number(), Type.Null()]),
-    dateOfBirth: Type.Union([Type.String({ format: "date" }), Type.Null()]),
-    createdAt: Type.Date(),
-    updatedAt: Type.Date(),
-    identity: Type.Union([
-      Type.Literal("non-binary"),
-      Type.Literal("transgender"),
-      Type.Literal("other"),
-      Type.Null(),
-    ]),
-    otherIdentity: Type.Union([Type.String(), Type.Null()]),
-    pronouns: Type.Union([
-      Type.Literal("they/them/theirs"),
-      Type.Literal("she/her/hers"),
-      Type.Literal("he/him/his"),
-      Type.Literal("custom"),
-      Type.Null(),
-    ]),
-    customPronouns: Type.Union([Type.String(), Type.Null()]),
-  });
+  // const UserRequest = Type.Object({
+  //   id: Type.Number(),
+  //   userId: Type.String(),
+  //   firstName: Type.String(),
+  //   lastName: Type.String(),
+  //   preferredName: Type.Union([Type.String(), Type.Null()]),
+  //   cityId: Type.Union([Type.Number(), Type.Null()]),
+  //   dateOfBirth: Type.Union([Type.String({ format: "date" }), Type.Null()]),
+  //   createdAt: Type.Date(),
+  //   updatedAt: Type.Date(),
+  //   identity: Type.Union([
+  //     Type.Literal("non-binary"),
+  //     Type.Literal("transgender"),
+  //     Type.Literal("other"),
+  //     Type.Null(),
+  //   ]),
+  //   otherIdentity: Type.Union([Type.String(), Type.Null()]),
+  //   pronouns: Type.Union([
+  //     Type.Literal("they/them/theirs"),
+  //     Type.Literal("she/her/hers"),
+  //     Type.Literal("he/him/his"),
+  //     Type.Literal("custom"),
+  //     Type.Null(),
+  //   ]),
+  //   customPronouns: Type.Union([Type.String(), Type.Null()]),
+  // });
 
   // get user by id
   fastify.get(
@@ -105,42 +105,42 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     }
   );
 
-  // create new user
-  fastify.post(
-    "/create",
-    {
-      schema: {
-        prehandler: AuthPrehandler,
-        body: UserRequest,
-        response: {
-          201: UserResponse,
-        },
-      },
-    },
-    async (request, reply) => {
-      const { userId } = getAuth(request);
+  // // create new user
+  // fastify.post(
+  //   "/create",
+  //   {
+  //     schema: {
+  //       prehandler: AuthPrehandler,
+  //       body: UserRequest,
+  //       response: {
+  //         201: UserResponse,
+  //       },
+  //     },
+  //   },
+  //   async (request, reply) => {
+  //     const { userId } = getAuth(request);
 
-      if (!userId) {
-        throw Error("User does not exist");
-      }
+  //     if (!userId) {
+  //       throw Error("User does not exist");
+  //     }
 
-      const newUser = request.body;
-      // create new user & insert
-      const user = await createNewUser(newUser);
-      // if for some reason there is an issue creating this user
-      if (!user) {
-        throw Error("User does not exit!");
-      }
-      // update the date fields
-      const userRes = {
-        ...user,
-        createdAt: user.createdAt.toString(),
-        updatedAt: user.updatedAt.toUTCString(),
-      };
+  //     const newUser = request.body;
+  //     // create new user & insert
+  //     const user = await createNewUser(newUser);
+  //     // if for some reason there is an issue creating this user
+  //     if (!user) {
+  //       throw Error("User does not exit!");
+  //     }
+  //     // update the date fields
+  //     const userRes = {
+  //       ...user,
+  //       createdAt: user.createdAt.toString(),
+  //       updatedAt: user.updatedAt.toUTCString(),
+  //     };
 
-      reply.status(201).send(userRes);
-    }
-  );
+  //     reply.status(201).send(userRes);
+  //   }
+  // );
 
   // update user fullname
   fastify.patch(
@@ -369,7 +369,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
       schema: {
         prehandler: AuthPrehandler,
         body: Type.Object({
-          dob: Type.Date(),
+          dob: Type.String(),
         }),
         response: {
           200: UserResponse,
@@ -469,40 +469,40 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     }
   );
 
-  fastify.put(
-    "/udpate/",
-    {
-      schema: {
-        prehandler: AuthPrehandler,
-        body: UserRequest,
-        response: {
-          200: UserResponse,
-        },
-      },
-    },
-    async (request, reply) => {
-      const newUserData = request.body;
-      const { userId } = getAuth(request);
+  // fastify.put(
+  //   "/udpate/",
+  //   {
+  //     schema: {
+  //       prehandler: AuthPrehandler,
+  //       body: UserRequest,
+  //       response: {
+  //         200: UserResponse,
+  //       },
+  //     },
+  //   },
+  //   async (request, reply) => {
+  //     const newUserData = request.body;
+  //     const { userId } = getAuth(request);
 
-      if (!userId) {
-        throw Error("User does not exist");
-      }
+  //     if (!userId) {
+  //       throw Error("User does not exist");
+  //     }
 
-      const user = await updateUser(userId, newUserData);
+  //     const user = await updateUser(userId, newUserData);
 
-      if (!user) {
-        throw Error("User does not exist");
-      }
+  //     if (!user) {
+  //       throw Error("User does not exist");
+  //     }
 
-      const userRes = {
-        ...user,
-        createdAt: user.createdAt.toString(),
-        updatedAt: user.updatedAt.toUTCString(),
-      };
+  //     const userRes = {
+  //       ...user,
+  //       createdAt: user.createdAt.toString(),
+  //       updatedAt: user.updatedAt.toUTCString(),
+  //     };
 
-      reply.status(200).send(userRes);
-    }
-  );
+  //     reply.status(200).send(userRes);
+  //   }
+  // );
 };
 
 export default userRouter;

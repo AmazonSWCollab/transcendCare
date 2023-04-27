@@ -1,5 +1,5 @@
 import { db } from "../../db/index";
-import { users, User, NewUser } from "../../db/schema/users";
+import { users, User } from "../../db/schema/users";
 import { eq } from "drizzle-orm";
 import { getCity } from "../cities";
 
@@ -17,15 +17,15 @@ export async function findUnique(id: string): Promise<User | null> {
  * It takes in a new user object populated with clerkAPI data.
  */
 
-export async function createNewUser(user: NewUser): Promise<User | null> {
-  const userSelected = await db.insert(users).values(user).returning().all();
+// export async function createNewUser(user: NewUser): Promise<User | null> {
+//   const userSelected = await db.insert(users).values(user).returning().all();
 
-  if (userSelected.length !== 1) {
-    return null;
-  }
+//   if (userSelected.length !== 1) {
+//     return null;
+//   }
 
-  return userSelected[0];
-}
+//   return userSelected[0];
+// }
 
 /**
  * This function is called when the user updates their profile
@@ -33,23 +33,23 @@ export async function createNewUser(user: NewUser): Promise<User | null> {
  * or when the admin updates the user's profile in the admin page.
  */
 
-export async function updateUser(
-  id: string,
-  user: NewUser
-): Promise<User | null> {
-  const userSelected = await db
-    .update(users)
-    .set(user)
-    .where(eq(users.userId, id))
-    .returning()
-    .all();
+// export async function updateUser(
+//   id: string,
+//   user: NewUser
+// ): Promise<User | null> {
+//   const userSelected = await db
+//     .update(users)
+//     .set(user)
+//     .where(eq(users.userId, id))
+//     .returning()
+//     .all();
 
-  if (userSelected.length !== 1) {
-    return null;
-  }
+//   if (userSelected.length !== 1) {
+//     return null;
+//   }
 
-  return userSelected[0];
-}
+//   return userSelected[0];
+// }
 
 export async function patchUserFirstName(
   id: string, 
@@ -145,11 +145,11 @@ export async function patchUserCity(
 
 export async function patchUserDOB(
   id: string,
-  dob: Date | null
+  dob: string
 ): Promise<User | null> {
   const user = await db
     .update(users)
-    .set({ dateOfBirth: dob?.toISOString() })
+    .set({ dateOfBirth: dob })
     .where(eq(users.userId, id))
     .returning()
     .all();
