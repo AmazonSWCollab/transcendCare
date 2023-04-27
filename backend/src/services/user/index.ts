@@ -3,13 +3,12 @@ import { users, User, NewUser } from "../../db/schema/users";
 import { eq } from "drizzle-orm";
 import { getCity } from "../cities";
 
-export async function findUnique(id: number): Promise<User | null> {
-  const user = await db.select().from(users).where(eq(users.id, id));
+export async function findUnique(id: string): Promise<User | null> {
+  const user = await db.select().from(users).where(eq(users.userId, id)).all();
 
   if (user.length !== 1) {
     return null;
   }
-
   return user[0];
 }
 
@@ -19,7 +18,7 @@ export async function findUnique(id: number): Promise<User | null> {
  */
 
 export async function createNewUser(user: NewUser): Promise<User | null> {
-  const userSelected = await db.insert(users).values(user).returning();
+  const userSelected = await db.insert(users).values(user).returning().all();
 
   if (userSelected.length !== 1) {
     return null;
@@ -35,14 +34,15 @@ export async function createNewUser(user: NewUser): Promise<User | null> {
  */
 
 export async function updateUser(
-  id: number,
+  id: string,
   user: NewUser
 ): Promise<User | null> {
   const userSelected = await db
     .update(users)
     .set(user)
-    .where(eq(users.id, id))
-    .returning();
+    .where(eq(users.userId, id))
+    .returning()
+    .all();
 
   if (userSelected.length !== 1) {
     return null;
@@ -52,14 +52,15 @@ export async function updateUser(
 }
 
 export async function patchUserFirstName(
-  id: number,
+  id: string, 
   firstName: string
 ): Promise<User | null> {
   const user = await db
     .update(users)
     .set({ firstName: firstName })
-    .where(eq(users.id, id))
-    .returning();
+    .where(eq(users.userId, id))
+    .returning()
+    .all();
 
   if (user.length !== 1) {
     return null;
@@ -69,14 +70,15 @@ export async function patchUserFirstName(
 }
 
 export async function patchUserLastName(
-  id: number,
+  id: string,
   lastName: string
 ): Promise<User | null> {
   const user = await db
     .update(users)
     .set({ lastName: lastName })
-    .where(eq(users.id, id))
-    .returning();
+    .where(eq(users.userId, id))
+    .returning()
+    .all();
 
   if (user.length !== 1) {
     return null;
@@ -86,14 +88,15 @@ export async function patchUserLastName(
 }
 
 export async function patchUserPreferredName(
-  id: number,
-  preferredName: string | null
+  id: string,
+  preferredName?: string
 ): Promise<User | null> {
   const user = await db
     .update(users)
     .set({ preferredName: preferredName })
-    .where(eq(users.id, id))
-    .returning();
+    .where(eq(users.userId, id))
+    .returning()
+    .all();
 
   if (user.length !== 1) {
     return null;
@@ -103,14 +106,15 @@ export async function patchUserPreferredName(
 }
 
 export async function patchUserRole(
-  id: number,
+  id: string,
   role: "user" | "admin"
 ): Promise<User | null> {
   const user = await db
     .update(users)
     .set({ role: role })
-    .where(eq(users.id, id))
-    .returning();
+    .where(eq(users.userId, id))
+    .returning()
+    .all();
 
   if (user.length !== 1) {
     return null;
@@ -120,7 +124,7 @@ export async function patchUserRole(
 }
 
 export async function patchUserCity(
-  id: number,
+  id: string,
   cityName: string
 ): Promise<User | null> {
   const city = await getCity(cityName);
@@ -128,8 +132,9 @@ export async function patchUserCity(
   const user = await db
     .update(users)
     .set({ cityId: city?.id })
-    .where(eq(users.id, id))
-    .returning();
+    .where(eq(users.userId, id))
+    .returning().
+    all();
 
   if (user.length !== 1) {
     return null;
@@ -139,14 +144,15 @@ export async function patchUserCity(
 }
 
 export async function patchUserDOB(
-  id: number,
+  id: string,
   dob: Date | null
 ): Promise<User | null> {
   const user = await db
     .update(users)
     .set({ dateOfBirth: dob?.toISOString() })
-    .where(eq(users.id, id))
-    .returning();
+    .where(eq(users.userId, id))
+    .returning()
+    .all();
 
   if (user.length !== 1) {
     return null;
@@ -156,7 +162,7 @@ export async function patchUserDOB(
 }
 
 export async function patchUserIdentity(
-  id: number,
+  id: string,
   identity: "non-binary" | "transgender" | "other" | null,
   otherIdentity: string | null
 ): Promise<User | null> {
@@ -166,8 +172,9 @@ export async function patchUserIdentity(
   const user = await db
     .update(users)
     .set({ identity: identity, otherIdentity: otherIdentity })
-    .where(eq(users.id, id))
-    .returning();
+    .where(eq(users.userId, id))
+    .returning()
+    .all();
 
   if (user.length !== 1) {
     return null;
@@ -177,7 +184,7 @@ export async function patchUserIdentity(
 }
 
 export async function patchUserPronouns(
-  id: number,
+  id: string,
   pronouns:
     | "they/them/theirs"
     | "she/her/hers"
@@ -192,8 +199,9 @@ export async function patchUserPronouns(
   const user = await db
     .update(users)
     .set({ pronouns: pronouns, customPronouns: customPronouns })
-    .where(eq(users.id, id))
-    .returning();
+    .where(eq(users.userId, id))
+    .returning()
+    .all();
 
   if (user.length !== 1) {
     return null;

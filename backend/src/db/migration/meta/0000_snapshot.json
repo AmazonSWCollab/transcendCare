@@ -1,18 +1,18 @@
 {
   "version": "5",
-  "dialect": "pg",
-  "id": "96938cca-8131-45df-a71f-ca27aa27cfbd",
+  "dialect": "sqlite",
+  "id": "5fb66e11-1427-4980-b837-27e8510ff571",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "cities": {
       "name": "cities",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
@@ -21,18 +21,39 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "name_idx": {
+          "name": "name_idx",
+          "columns": [
+            "name"
+          ],
+          "isUnique": false
+        },
+        "unique_idx": {
+          "name": "unique_idx",
+          "columns": [
+            "name"
+          ],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {}
     },
     "users": {
       "name": "users",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "full_name": {
@@ -41,41 +62,85 @@
           "primaryKey": false,
           "notNull": true
         },
-        "phone": {
-          "name": "phone",
-          "type": "varchar(20)",
+        "last_name": {
+          "name": "last_name",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
+        "preferred_name": {
+          "name": "preferred_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "role": {
           "name": "role",
-          "type": "role",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'user'"
+          "default": "('user')"
         },
         "city_id": {
           "name": "city_id",
-          "type": "integer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "date_of_birth": {
+          "name": "date_of_birth",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
+        },
+        "identity": {
+          "name": "identity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "other_identity": {
+          "name": "other_identity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pronouns": {
+          "name": "pronouns",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "custom_pronouns": {
+          "name": "custom_pronouns",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "user_id": {
+          "name": "user_id",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "users_city_id_cities_id_fk": {
           "name": "users_city_id_cities_id_fk",
@@ -86,24 +151,26 @@
           ],
           "columnsTo": [
             "id"
+          ]
+        },
+        "users_city_id_city_id_cities_id_name_fk": {
+          "name": "users_city_id_city_id_cities_id_name_fk",
+          "tableFrom": "users",
+          "tableTo": "cities",
+          "columnsFrom": [
+            "city_id",
+            "city_id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "columnsTo": [
+            "id",
+            "name"
+          ]
         }
       },
       "compositePrimaryKeys": {}
     }
   },
-  "enums": {
-    "role": {
-      "name": "role",
-      "values": {
-        "user": "user",
-        "admin": "admin"
-      }
-    }
-  },
-  "schemas": {},
+  "enums": {},
   "_meta": {
     "schemas": {},
     "tables": {},

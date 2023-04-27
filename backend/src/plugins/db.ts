@@ -1,11 +1,11 @@
 import fp from "fastify-plugin";
 import { FastifyPluginAsync } from "fastify";
-import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { db, pgClient } from "../db";
+import { db } from "../db";
+import type { Database } from "better-sqlite3";
 
 declare module "fastify" {
   interface FastifyInstance {
-    db: PostgresJsDatabase;
+    db: Database;
   }
 }
 
@@ -16,7 +16,6 @@ const drizzlePlugin: FastifyPluginAsync<DrizzlePluginOptions> = fp(
     fastify.decorate("db", db);
     fastify.addHook("onClose", async (server) => {
       console.info(`Disconnected from database: ${process.env.DATABASE_URL}`);
-      pgClient.end();
     });
   }
 );

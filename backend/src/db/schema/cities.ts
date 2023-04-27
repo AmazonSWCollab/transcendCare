@@ -1,9 +1,9 @@
 import type { InferModel } from "drizzle-orm";
-import { index, pgTable, serial, uniqueIndex, varchar } from "drizzle-orm/pg-core";
+import { index, sqliteTable, integer, uniqueIndex, text } from "drizzle-orm/sqlite-core";
 
-export const cities = pgTable("cities", {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }).notNull(),
+export const cities = sqliteTable("cities", {
+    id: integer("id").primaryKey(),
+    name: text("name").notNull(),
   }, (cities) => {
     return {
       nameIdx: index('name_idx').on(cities.name),

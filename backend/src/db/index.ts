@@ -1,10 +1,10 @@
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle } from "drizzle-orm/better-sqlite3";
 export { sql } from "drizzle-orm/sql";
-import postgres from "postgres";
+import Database from "better-sqlite3";
 
-export const pgClient = postgres(process.env.DATABASE_URL!);
+const sqlite = new Database('dev.db');
 
-export const db: PostgresJsDatabase = drizzle(pgClient, {
+export const db = drizzle(sqlite, {
   logger: process.env.NODE_ENV !== "production",
 });
+

@@ -6,7 +6,8 @@ export async function getCity(cityName: string) {
   const citySelect = await db
     .select()
     .from(cities)
-    .where(eq(cities.name, cityName));
+    .where(eq(cities.name, cityName))
+    .all();
   // Account for  invalid city name
   if (citySelect.length < 1) {
     return createCity(cityName);
@@ -18,7 +19,8 @@ export async function createCity(cityName: string) {
   const insertCity = await db
     .insert(cities)
     .values({ name: cityName })
-    .returning();
+    .returning()
+    .all();
 
   if (insertCity.length < 1) {
     return null;

@@ -1,3 +1,4 @@
+import { getAuth } from "@clerk/fastify";
 import {
   Type,
   FastifyPluginAsyncTypebox,
@@ -6,10 +7,14 @@ import { AuthPrehandler } from "../../services/prehandlers/auth";
 import {
   createNewUser,
   findUnique,
-  patchUserCity,
   patchUserFirstName,
   patchUserLastName,
   patchUserPreferredName,
+  patchUserRole,
+  patchUserCity,
+  patchUserDOB,
+  patchUserIdentity,
+  patchUserPronouns,
   updateUser,
 } from "../../services/user";
 
@@ -19,6 +24,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
 ): Promise<void> => {
   const UserResponse = Type.Object({
     id: Type.Number(),
+    userId: Type.String(),
     firstName: Type.String(),
     lastName: Type.String(),
     preferredName: Type.Union([Type.String(), Type.Null()]),
@@ -46,11 +52,14 @@ const userRouter: FastifyPluginAsyncTypebox = async (
 
   const UserRequest = Type.Object({
     id: Type.Number(),
+    userId: Type.String(),
     firstName: Type.String(),
     lastName: Type.String(),
     preferredName: Type.Union([Type.String(), Type.Null()]),
     cityId: Type.Union([Type.Number(), Type.Null()]),
     dateOfBirth: Type.Union([Type.String({ format: "date" }), Type.Null()]),
+    createdAt: Type.Date(),
+    updatedAt: Type.Date(),
     identity: Type.Union([
       Type.Literal("non-binary"),
       Type.Literal("transgender"),
@@ -70,21 +79,23 @@ const userRouter: FastifyPluginAsyncTypebox = async (
 
   // get user by id
   fastify.get(
-    "/:id",
+    "/",
     {
       schema: {
         prehandler: AuthPrehandler,
-        params: Type.Object({
-          id: Type.Number(),
-        }),
         response: {
           200: UserResponse,
         },
       },
     },
     async (request, reply) => {
-      const { id } = request.params;
-      const user = await findUnique(id);
+      const { userId } = getAuth(request);
+
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
+      const user = await findUnique(userId);
       // the case where the user id is invalid
       if (!user) {
         throw Error("User does not exist");
@@ -107,6 +118,12 @@ const userRouter: FastifyPluginAsyncTypebox = async (
       },
     },
     async (request, reply) => {
+      const { userId } = getAuth(request);
+
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
       const newUser = request.body;
       // create new user & insert
       const user = await createNewUser(newUser);
@@ -125,25 +142,31 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     }
   );
 
-  fastify.put(
-    "/:id/udpate/",
+  // update user fullname
+  fastify.patch(
+    "/update/name",
     {
       schema: {
         prehandler: AuthPrehandler,
-        params: Type.Object({
-          id: Type.Number(),
+        body: Type.Object({
+          firstName: Type.String(),
+          lastName: Type.String(),
         }),
-        body: UserRequest,
         response: {
           200: UserResponse,
         },
       },
     },
     async (request, reply) => {
-      const newUserData = request.body;
-      const user_id = request.params.id;
+      const { userId } = getAuth(request);
 
-      const user = await updateUser(user_id, newUserData);
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
+      const { firstName, lastName } = request.body;
+      await patchUserFirstName(userId, firstName);
+      const user = await patchUserLastName(userId, lastName);
 
       if (!user) {
         throw Error("User does not exist");
@@ -159,17 +182,50 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     }
   );
 
-  // update user fullname
+  // update user firstname
   fastify.patch(
-    "/:id/update/name",
+    "/update/firstname",
     {
       schema: {
         prehandler: AuthPrehandler,
-        params: Type.Object({
-          id: Type.Number(),
-        }),
         body: Type.Object({
           firstName: Type.String(),
+        }),
+        response: {
+          200: UserResponse,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { userId } = getAuth(request);
+
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
+      const { firstName } = request.body;
+      const user = await patchUserFirstName(userId, firstName);
+
+      if (!user) {
+        throw Error("User does not exist");
+      }
+
+      const userRes = {
+        ...user,
+        createdAt: user.createdAt.toString(),
+        updatedAt: user.updatedAt.toUTCString(),
+      };
+
+      reply.status(200).send(userRes);
+    }
+  );
+
+  fastify.patch(
+    "/update/lastname",
+    {
+      schema: {
+        prehandler: AuthPrehandler,
+        body: Type.Object({
           lastName: Type.String(),
         }),
         response: {
@@ -178,9 +234,14 @@ const userRouter: FastifyPluginAsyncTypebox = async (
       },
     },
     async (request, reply) => {
-      const { firstName, lastName } = request.body;
-      const user_id = request.params.id;
-      const user = await patchUserFullName(user_id, firstName, lastName);
+      const { userId } = getAuth(request);
+
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
+      const { lastName } = request.body;
+      const user = await patchUserFirstName(userId, lastName);
 
       if (!user) {
         throw Error("User does not exist");
@@ -198,12 +259,9 @@ const userRouter: FastifyPluginAsyncTypebox = async (
 
   // update user preferred name
   fastify.patch(
-    "/:id/update/preferredName",
+    "/update/preferredName",
     {
       schema: {
-        params: Type.Object({
-          id: Type.Number(),
-        }),
         body: Type.Object({
           preferredName: Type.String(),
         }),
@@ -213,9 +271,15 @@ const userRouter: FastifyPluginAsyncTypebox = async (
       },
     },
     async (request, reply) => {
+      const { userId } = getAuth(request);
+
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
       const { preferredName } = request.body;
-      const user_id = request.params.id;
-      const user = await patchUserPreferredName(user_id, preferredName);
+
+      const user = await patchUserPreferredName(userId, preferredName);
 
       if (!user) {
         throw Error("User does not exit");
@@ -231,15 +295,42 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     }
   );
 
-  // update user city
   fastify.patch(
-    "/:id/update/city",
+    "/update/role",
     {
       schema: {
         prehandler: AuthPrehandler,
-        params: Type.Object({
-          id: Type.Number(),
+        body: Type.Object({
+          role: Type.Union([Type.Literal("admin"), Type.Literal("user")]),
         }),
+        response: {
+          200: UserResponse,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { userId } = getAuth(request);
+
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
+      const { role } = request.body;
+      const user = await patchUserRole(userId, role);
+
+      if (!user) {
+        throw Error("User does not exist");
+      }
+
+      reply.status(200).send(user);
+    }
+  );
+
+  fastify.patch(
+    "/update/city",
+    {
+      schema: {
+        prehandler: AuthPrehandler,
         body: Type.Object({
           city_name: Type.String(),
         }),
@@ -249,10 +340,15 @@ const userRouter: FastifyPluginAsyncTypebox = async (
       },
     },
     async (request, reply) => {
+      const { userId } = getAuth(request);
+
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
       const { city_name } = request.body;
-      const user_id = request.params.id;
       // get the id of the city the user names
-      const user = await patchUserCity(user_id, city_name);
+      const user = await patchUserCity(userId, city_name);
 
       if (!user) {
         throw Error("User does not exist");
@@ -263,6 +359,147 @@ const userRouter: FastifyPluginAsyncTypebox = async (
         createdAt: user.createdAt.toString(),
         updatedAt: user.updatedAt.toUTCString(),
       };
+      reply.status(200).send(userRes);
+    }
+  );
+
+  fastify.patch(
+    "/update/dob",
+    {
+      schema: {
+        prehandler: AuthPrehandler,
+        body: Type.Object({
+          dob: Type.Date(),
+        }),
+        response: {
+          200: UserResponse,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { userId } = getAuth(request);
+
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
+      const { dob } = request.body;
+      const user = await patchUserDOB(userId, dob);
+
+      if (!user) {
+        throw Error("User does not exist");
+      }
+
+      reply.status(200).send(user);
+    }
+  );
+
+  fastify.patch(
+    "/update/identity",
+    {
+      schema: {
+        prehandler: AuthPrehandler,
+        body: Type.Object({
+          identity: Type.Union([
+            Type.Literal("transgender"),
+            Type.Literal("non-binary"),
+            Type.Literal("other"),
+            Type.Null(),
+          ]),
+          otherIdentity: Type.String(),
+        }),
+        response: {
+          200: UserResponse,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { userId } = getAuth(request);
+
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
+      const { identity, otherIdentity } = request.body;
+      const user = await patchUserIdentity(userId, identity, otherIdentity);
+
+      if (!user) {
+        throw Error("User does not exist");
+      }
+
+      reply.status(200).send(user);
+    }
+  );
+
+  fastify.patch(
+    "/update/pronouns",
+    {
+      schema: {
+        prehandler: AuthPrehandler,
+        body: Type.Object({
+          pronouns: Type.Union([
+            Type.Literal("they/them/theirs"),
+            Type.Literal("she/her/hers"),
+            Type.Literal("he/him/his"),
+            Type.Literal("custom"),
+            Type.Null(),
+          ]),
+          customPronouns: Type.Union([Type.String(), Type.Null()]),
+        }),
+        response: {
+          200: UserResponse,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { userId } = getAuth(request);
+
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
+      const { pronouns, customPronouns } = request.body;
+      const user = await patchUserPronouns(userId, pronouns, customPronouns);
+
+      if (!user) {
+        throw Error("User does not exist");
+      }
+
+      reply.status(200).send(user);
+    }
+  );
+
+  fastify.put(
+    "/udpate/",
+    {
+      schema: {
+        prehandler: AuthPrehandler,
+        body: UserRequest,
+        response: {
+          200: UserResponse,
+        },
+      },
+    },
+    async (request, reply) => {
+      const newUserData = request.body;
+      const { userId } = getAuth(request);
+
+      if (!userId) {
+        throw Error("User does not exist");
+      }
+
+      const user = await updateUser(userId, newUserData);
+
+      if (!user) {
+        throw Error("User does not exist");
+      }
+
+      const userRes = {
+        ...user,
+        createdAt: user.createdAt.toString(),
+        updatedAt: user.updatedAt.toUTCString(),
+      };
+
       reply.status(200).send(userRes);
     }
   );
