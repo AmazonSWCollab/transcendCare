@@ -1,6 +1,7 @@
-import { ClerkProvider } from "@clerk/nextjs/app-beta";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs/app-beta";
 import "./globals.css";
 import { Lexend } from "next/font/google";
+import FooterNav from "@/components/Common/Nav/FooterNav";
 // This is the layout page for the landing screen and its children page
 export const metadata = {
   title: "Transcend Care",
@@ -20,11 +21,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <ClerkProvider>
-        <body
-          className={`${fontLexend.variable} p-8 w-[100vw] h-[100vh] font-sans`}
-        >
-          {children}
-        </body>
+        <SignedOut>
+          <body
+            className={`${fontLexend.variable} bg-pink_bg p-8 min-h-screen font-sans`}
+          >
+            {children}
+          </body>
+        </SignedOut>
+        <SignedIn>
+          <body
+            className={`${fontLexend.variable} relative p-8 min-h-screen font-sans`}
+          >
+            {children}
+            <FooterNav />
+          </body>
+        </SignedIn>
       </ClerkProvider>
     </html>
   );

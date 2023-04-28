@@ -2,7 +2,7 @@ import { SignIn } from "@clerk/nextjs/app-beta";
 // This is the signin page
 const signin = () => {
   return (
-    <section className="px-10 h-[100vh] flex flex-col justify-center items-center">
+    <div className="">
       <SignIn
         appearance={{
           elements: {
@@ -13,7 +13,7 @@ const signin = () => {
         }}
         signUpUrl="/signup"
       />
-    </section>
+    </div>
   );
 };
 

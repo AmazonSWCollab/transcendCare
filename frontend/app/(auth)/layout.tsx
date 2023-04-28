@@ -9,5 +9,9 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="bg-pink_bg">{children}</div>;
+  return (
+    <section className="bg-pink_bg px-10 flex flex-col min-h-screen justify-center items-center">
+      {children}
+    </section>
+  );
 }
