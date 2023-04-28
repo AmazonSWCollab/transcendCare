@@ -3,7 +3,7 @@ import {
   Type,
   FastifyPluginAsyncTypebox,
 } from "@fastify/type-provider-typebox";
-import { AuthPrehandler } from "../../services/prehandlers/auth";
+import { AuthPrehandler } from "../../lib/prehandlers/auth";
 import {
   // createNewUser,
   findUnique,
@@ -16,7 +16,7 @@ import {
   patchUserIdentity,
   patchUserPronouns,
   // updateUser,
-} from "../../services/user";
+} from "../../lib/user";
 
 const userRouter: FastifyPluginAsyncTypebox = async (
   fastify,
