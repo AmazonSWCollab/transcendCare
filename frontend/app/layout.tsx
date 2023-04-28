@@ -23,7 +23,7 @@ export default function RootLayout({
       <ClerkProvider>
         <SignedOut>
           <body
-            className={`${fontLexend.variable} bg-pink_bg p-8 min-h-screen font-sans`}
+            className={`${fontLexend.variable} overflow-hidden bg-pink_bg p-8 min-h-screen font-sans`}
           >
             {children}
           </body>
