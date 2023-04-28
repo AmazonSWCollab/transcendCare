@@ -4,7 +4,7 @@ import { SignedIn, SignedOut } from "@clerk/nextjs/app-beta";
 // This is the page for the landing screen
 export default function Home() {
   return (
-    <main className="flex flex-col">
+    <main className="min-h-screen relative flex flex-col">
       <SignedOut>
         <LandingScreen />
       </SignedOut>

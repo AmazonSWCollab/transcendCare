@@ -16,7 +16,7 @@ const DashBoardScreen = () => {
   const router = useRouter();
   // In case the user signs out while on the page.
   if (!isLoaded || !userId) {
-    router.push("/signin");
+    router.refresh();
   }
   useEffect(() => {
     if (!user) {
@@ -27,7 +27,7 @@ const DashBoardScreen = () => {
   }, [user]);
 
   return (
-    <section className="w-[100vw] h-[100vh] bg-white m-[-2rem] p-8">
+    <section className="min-h-screen">
       {isLoading && <FullLoading />}
       <Header user={user} />
       <DailyAffirmation />
