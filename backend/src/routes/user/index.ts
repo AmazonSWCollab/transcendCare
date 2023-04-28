@@ -3,7 +3,6 @@ import {
   Type,
   FastifyPluginAsyncTypebox,
 } from "@fastify/type-provider-typebox";
-import { AuthPrehandler } from "../../lib/prehandlers/auth";
 import {
   // createNewUser,
   findUnique,
@@ -22,6 +21,8 @@ const userRouter: FastifyPluginAsyncTypebox = async (
   fastify,
   _opts
 ): Promise<void> => {
+
+  // resopnse schema
   const UserResponse = Type.Object({
     id: Type.Number(),
     userId: Type.String(),
@@ -50,6 +51,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     customPronouns: Type.Union([Type.String(), Type.Null()]),
   });
 
+  // TODO: request schema needs work
   // const UserRequest = Type.Object({
   //   id: Type.Number(),
   //   userId: Type.String(),
@@ -77,12 +79,50 @@ const userRouter: FastifyPluginAsyncTypebox = async (
   //   customPronouns: Type.Union([Type.String(), Type.Null()]),
   // });
 
-  // get user by id
+  const PatchFullNameRequest = Type.Object({
+    firstName: Type.String(),
+    lastName: Type.String(),
+  });
+
+  // reused on several nominal fields
+  const PatchNameRequest = Type.Object({
+    name: Type.String(),
+  });
+
+  const PatchRoleRequest = Type.Object({
+    role: Type.Union([Type.Literal("admin"), Type.Literal("user")]),
+  });
+
+  const PatchDobRequest = Type.Object({
+    dob: Type.String({ format: "date" }),
+  });
+
+  const PatchIdentityRequest = Type.Object({
+    identity: Type.Union([
+      Type.Literal("transgender"),
+      Type.Literal("non-binary"),
+      Type.Literal("other"),
+      Type.Null(),
+    ]),
+    otherIdentity: Type.String(),
+  });
+
+  const PatchPronounsRequest = Type.Object({
+    pronouns: Type.Union([
+      Type.Literal("they/them/theirs"),
+      Type.Literal("she/her/hers"),
+      Type.Literal("he/him/his"),
+      Type.Literal("custom"),
+      Type.Null(),
+    ]),
+    customPronouns: Type.Union([Type.String(), Type.Null()]),
+  });
+
+  // get user profile data
   fastify.get(
     "/",
     {
       schema: {
-        prehandler: AuthPrehandler,
         response: {
           200: UserResponse,
         },
@@ -90,27 +130,22 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     },
     async (request, reply) => {
       const { userId } = getAuth(request);
-
       if (!userId) {
-        throw Error("User does not exist");
+        return reply.code(403).send();
       }
-
       const user = await findUnique(userId);
-      // the case where the user id is invalid
       if (!user) {
-        throw Error("User does not exist");
+        throw Error("User authorization found but user does not exist");
       }
-      // otherwise send user object
       reply.status(200).send(user);
     }
   );
 
-  // // create new user
+  // TODO: FIX create new user
   // fastify.post(
   //   "/create",
   //   {
   //     schema: {
-  //       prehandler: AuthPrehandler,
   //       body: UserRequest,
   //       response: {
   //         201: UserResponse,
@@ -119,25 +154,20 @@ const userRouter: FastifyPluginAsyncTypebox = async (
   //   },
   //   async (request, reply) => {
   //     const { userId } = getAuth(request);
-
   //     if (!userId) {
-  //       throw Error("User does not exist");
+  //       reply.code(403).send();
   //     }
-
   //     const newUser = request.body;
-  //     // create new user & insert
   //     const user = await createNewUser(newUser);
-  //     // if for some reason there is an issue creating this user
   //     if (!user) {
-  //       throw Error("User does not exit!");
+  //       throw Error("User could not be created");
   //     }
-  //     // update the date fields
+  //     // TODO: bettter way to do this?
   //     const userRes = {
   //       ...user,
   //       createdAt: user.createdAt.toString(),
   //       updatedAt: user.updatedAt.toUTCString(),
   //     };
-
   //     reply.status(201).send(userRes);
   //   }
   // );
@@ -147,11 +177,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     "/update/name",
     {
       schema: {
-        prehandler: AuthPrehandler,
-        body: Type.Object({
-          firstName: Type.String(),
-          lastName: Type.String(),
-        }),
+        body: PatchFullNameRequest,
         response: {
           200: UserResponse,
         },
@@ -159,25 +185,21 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     },
     async (request, reply) => {
       const { userId } = getAuth(request);
-
       if (!userId) {
-        throw Error("User does not exist");
+        return reply.code(403).send();
       }
-
       const { firstName, lastName } = request.body;
       await patchUserFirstName(userId, firstName);
       const user = await patchUserLastName(userId, lastName);
-
       if (!user) {
-        throw Error("User does not exist");
+        throw Error("User full name could not be updated");
       }
-
+      // TODO: bettter way to do this?
       const userRes = {
         ...user,
         createdAt: user.createdAt.toString(),
         updatedAt: user.updatedAt.toUTCString(),
       };
-
       reply.status(200).send(userRes);
     }
   );
@@ -187,10 +209,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     "/update/firstname",
     {
       schema: {
-        prehandler: AuthPrehandler,
-        body: Type.Object({
-          firstName: Type.String(),
-        }),
+        body: PatchNameRequest,
         response: {
           200: UserResponse,
         },
@@ -198,24 +217,20 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     },
     async (request, reply) => {
       const { userId } = getAuth(request);
-
       if (!userId) {
-        throw Error("User does not exist");
+        return reply.code(403).send();
       }
-
-      const { firstName } = request.body;
-      const user = await patchUserFirstName(userId, firstName);
-
+      const { name } = request.body;
+      const user = await patchUserFirstName(userId, name);
       if (!user) {
-        throw Error("User does not exist");
+        throw Error("User first name could not be updated");
       }
-
+      // TODO: bettter way to do this?
       const userRes = {
         ...user,
         createdAt: user.createdAt.toString(),
         updatedAt: user.updatedAt.toUTCString(),
       };
-
       reply.status(200).send(userRes);
     }
   );
@@ -224,10 +239,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     "/update/lastname",
     {
       schema: {
-        prehandler: AuthPrehandler,
-        body: Type.Object({
-          lastName: Type.String(),
-        }),
+        body: PatchNameRequest,
         response: {
           200: UserResponse,
         },
@@ -235,24 +247,20 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     },
     async (request, reply) => {
       const { userId } = getAuth(request);
-
       if (!userId) {
-        throw Error("User does not exist");
+        return reply.code(403).send();
       }
-
-      const { lastName } = request.body;
-      const user = await patchUserFirstName(userId, lastName);
-
+      const { name } = request.body;
+      const user = await patchUserLastName(userId, name);
       if (!user) {
-        throw Error("User does not exist");
+        throw Error("User last name could not be updated");
       }
-
+      // TODO: bettter way to do this?
       const userRes = {
         ...user,
         createdAt: user.createdAt.toString(),
         updatedAt: user.updatedAt.toUTCString(),
       };
-
       reply.status(200).send(userRes);
     }
   );
@@ -262,9 +270,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     "/update/preferredName",
     {
       schema: {
-        body: Type.Object({
-          preferredName: Type.String(),
-        }),
+        body: PatchNameRequest,
         response: {
           200: UserResponse,
         },
@@ -272,25 +278,20 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     },
     async (request, reply) => {
       const { userId } = getAuth(request);
-
       if (!userId) {
-        throw Error("User does not exist");
+        return reply.code(403).send();
       }
-
-      const { preferredName } = request.body;
-
-      const user = await patchUserPreferredName(userId, preferredName);
-
+      const { name } = request.body;
+      const user = await patchUserPreferredName(userId, name);
       if (!user) {
-        throw Error("User does not exit");
+        throw Error("User preferred name could not be updated");
       }
-
+      // TODO: bettter way to do this?
       const userRes = {
         ...user,
         createdAt: user.createdAt.toString(),
         updatedAt: user.updatedAt.toUTCString(),
       };
-
       reply.status(200).send(userRes);
     }
   );
@@ -299,29 +300,22 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     "/update/role",
     {
       schema: {
-        prehandler: AuthPrehandler,
-        body: Type.Object({
-          role: Type.Union([Type.Literal("admin"), Type.Literal("user")]),
-        }),
+        body: PatchRoleRequest,
         response: {
           200: UserResponse,
         },
       },
     },
     async (request, reply) => {
-      const { userId } = getAuth(request);
-
+      const { userId } = await getAuth(request);
       if (!userId) {
-        throw Error("User does not exist");
+        return reply.code(403).send();
       }
-
       const { role } = request.body;
       const user = await patchUserRole(userId, role);
-
       if (!user) {
-        throw Error("User does not exist");
+        throw Error("User role could not be updated");
       }
-
       reply.status(200).send(user);
     }
   );
@@ -330,10 +324,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     "/update/city",
     {
       schema: {
-        prehandler: AuthPrehandler,
-        body: Type.Object({
-          city_name: Type.String(),
-        }),
+        body: PatchNameRequest,
         response: {
           200: UserResponse,
         },
@@ -341,19 +332,15 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     },
     async (request, reply) => {
       const { userId } = getAuth(request);
-
       if (!userId) {
-        throw Error("User does not exist");
+        return reply.code(403).send();
       }
-
-      const { city_name } = request.body;
-      // get the id of the city the user names
-      const user = await patchUserCity(userId, city_name);
-
+      const { name } = request.body;
+      const user = await patchUserCity(userId, name);
       if (!user) {
-        throw Error("User does not exist");
+        throw Error("User city could not be updated");
       }
-
+      // TODO: better practice for working with dates
       const userRes = {
         ...user,
         createdAt: user.createdAt.toString(),
@@ -367,10 +354,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     "/update/dob",
     {
       schema: {
-        prehandler: AuthPrehandler,
-        body: Type.Object({
-          dob: Type.String(),
-        }),
+        body: PatchDobRequest,
         response: {
           200: UserResponse,
         },
@@ -378,18 +362,14 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     },
     async (request, reply) => {
       const { userId } = getAuth(request);
-
       if (!userId) {
-        throw Error("User does not exist");
+        return reply.code(403).send();
       }
-
       const { dob } = request.body;
       const user = await patchUserDOB(userId, dob);
-
       if (!user) {
-        throw Error("User does not exist");
+        throw Error("User date of birth could not be updated");
       }
-
       reply.status(200).send(user);
     }
   );
@@ -398,16 +378,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     "/update/identity",
     {
       schema: {
-        prehandler: AuthPrehandler,
-        body: Type.Object({
-          identity: Type.Union([
-            Type.Literal("transgender"),
-            Type.Literal("non-binary"),
-            Type.Literal("other"),
-            Type.Null(),
-          ]),
-          otherIdentity: Type.String(),
-        }),
+        body: PatchIdentityRequest,
         response: {
           200: UserResponse,
         },
@@ -415,18 +386,14 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     },
     async (request, reply) => {
       const { userId } = getAuth(request);
-
       if (!userId) {
-        throw Error("User does not exist");
+        return reply.code(403).send();
       }
-
       const { identity, otherIdentity } = request.body;
       const user = await patchUserIdentity(userId, identity, otherIdentity);
-
       if (!user) {
-        throw Error("User does not exist");
+        throw Error("User identity could not be updated");
       }
-
       reply.status(200).send(user);
     }
   );
@@ -435,17 +402,7 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     "/update/pronouns",
     {
       schema: {
-        prehandler: AuthPrehandler,
-        body: Type.Object({
-          pronouns: Type.Union([
-            Type.Literal("they/them/theirs"),
-            Type.Literal("she/her/hers"),
-            Type.Literal("he/him/his"),
-            Type.Literal("custom"),
-            Type.Null(),
-          ]),
-          customPronouns: Type.Union([Type.String(), Type.Null()]),
-        }),
+        body: PatchPronounsRequest,
         response: {
           200: UserResponse,
         },
@@ -453,27 +410,23 @@ const userRouter: FastifyPluginAsyncTypebox = async (
     },
     async (request, reply) => {
       const { userId } = getAuth(request);
-
       if (!userId) {
-        throw Error("User does not exist");
+        return reply.code(403).send();
       }
-
       const { pronouns, customPronouns } = request.body;
       const user = await patchUserPronouns(userId, pronouns, customPronouns);
-
       if (!user) {
-        throw Error("User does not exist");
+        throw Error("User pronouns could not be updated");
       }
-
       reply.status(200).send(user);
     }
   );
 
-  // fastify.put(
+  //  TODO: FIX update user profile
+  //  fastify.put(
   //   "/udpate/",
   //   {
   //     schema: {
-  //       prehandler: AuthPrehandler,
   //       body: UserRequest,
   //       response: {
   //         200: UserResponse,
@@ -481,17 +434,14 @@ const userRouter: FastifyPluginAsyncTypebox = async (
   //     },
   //   },
   //   async (request, reply) => {
-  //     const newUserData = request.body;
   //     const { userId } = getAuth(request);
-
   //     if (!userId) {
-  //       throw Error("User does not exist");
+  //       return reply.code(403).send();
   //     }
-
+  //     const newUserData = request.body;
   //     const user = await updateUser(userId, newUserData);
-
   //     if (!user) {
-  //       throw Error("User does not exist");
+  //       throw Error("User profile could not be updated");
   //     }
 
   //     const userRes = {
