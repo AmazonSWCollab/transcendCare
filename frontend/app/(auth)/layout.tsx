@@ -10,7 +10,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-pink_bg px-10 flex flex-col min-h-screen justify-center items-center">
+    <section className="bg-pink_bg px-10 flex flex-col min-h-screen overflow-hidden justify-center items-center">
       {children}
     </section>
   );
