@@ -7,7 +7,7 @@ import LinkButton from "../Common/Button/LinkButton";
 const LandingScreen = () => {
   const { isLoaded, userId } = useAuth();
   return (
-    <section className="flex flex-col items-center">
+    <section className="p-[-2rem] bg-pink_bg w-[100vw] h-[100vh] flex flex-col items-center">
       <Banner />
       <img
         src="/landing pic.svg"

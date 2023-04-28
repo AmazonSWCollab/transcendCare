@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <ClerkProvider>
         <body
-          className={`${fontLexend.variable} p-8 w-[100vw] h-[100vh] font-sans bg-pink_bg`}
+          className={`${fontLexend.variable} p-8 w-[100vw] h-[100vh] font-sans`}
         >
           {children}
         </body>
