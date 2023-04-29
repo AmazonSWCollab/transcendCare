@@ -4,6 +4,8 @@ import { index, sqliteTable, integer, uniqueIndex, text } from "drizzle-orm/sqli
 export const cities = sqliteTable("cities", {
     id: integer("id").primaryKey(),
     name: text("name").notNull(),
+    longitude: text("longitude").notNull(),
+    latitude: text("latitude").notNull(),
   }, (cities) => {
     return {
       nameIdx: index('name_idx').on(cities.name),

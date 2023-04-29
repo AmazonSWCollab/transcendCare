@@ -1,10 +1,10 @@
 import { db } from "../../db/index";
-import { users, User } from "../../db/schema/users";
+import { profiles, Profile } from "../../db/schema/profile";
 import { eq } from "drizzle-orm";
 import { getCity } from "../cities";
 
-export async function findUnique(id: string): Promise<User | null> {
-  const user = await db.select().from(users).where(eq(users.userId, id)).all();
+export async function findUnique(id: string): Promise<Profile | null> {
+  const user = await db.select().from(profiles).where(eq(profiles.userId, id)).all();
 
   if (user.length !== 1) {
     return null;
@@ -12,89 +12,15 @@ export async function findUnique(id: string): Promise<User | null> {
   return user[0];
 }
 
-/**
- * This function is called during the initial auth flow.
- * It takes in a new user object populated with clerkAPI data.
- */
 
-// export async function createNewUser(user: NewUser): Promise<User | null> {
-//   const userSelected = await db.insert(users).values(user).returning().all();
-
-//   if (userSelected.length !== 1) {
-//     return null;
-//   }
-
-//   return userSelected[0];
-// }
-
-/**
- * This function is called when the user updates their profile
- * either during the onboarding process or via settings page
- * or when the admin updates the user's profile in the admin page.
- */
-
-// export async function updateUser(
-//   id: string,
-//   user: NewUser
-// ): Promise<User | null> {
-//   const userSelected = await db
-//     .update(users)
-//     .set(user)
-//     .where(eq(users.userId, id))
-//     .returning()
-//     .all();
-
-//   if (userSelected.length !== 1) {
-//     return null;
-//   }
-
-//   return userSelected[0];
-// }
-
-export async function patchUserFirstName(
-  id: string, 
-  firstName: string
-): Promise<User | null> {
-  const user = await db
-    .update(users)
-    .set({ firstName: firstName })
-    .where(eq(users.userId, id))
-    .returning()
-    .all();
-
-  if (user.length !== 1) {
-    return null;
-  }
-
-  return user[0];
-}
-
-export async function patchUserLastName(
-  id: string,
-  lastName: string
-): Promise<User | null> {
-  const user = await db
-    .update(users)
-    .set({ lastName: lastName })
-    .where(eq(users.userId, id))
-    .returning()
-    .all();
-
-  if (user.length !== 1) {
-    return null;
-  }
-
-  return user[0];
-}
-
-export async function patchUserPreferredName(
+export async function patchProfilePreferredName(
   id: string,
   preferredName?: string
-): Promise<User | null> {
+): Promise<Profile | null> {
   const user = await db
-    .update(users)
+    .update(profiles)
     .set({ preferredName: preferredName })
-    .where(eq(users.userId, id))
+    .where(eq(profiles.userId, id))
     .returning()
     .all();
 
@@ -105,14 +31,14 @@ export async function patchUserPreferredName(
   return user[0];
 }
 
-export async function patchUserRole(
+export async function patchProfileRole(
   id: string,
   role: "user" | "admin"
-): Promise<User | null> {
+): Promise<Profile | null> {
   const user = await db
-    .update(users)
+    .update(profiles)
     .set({ role: role })
-    .where(eq(users.userId, id))
+    .where(eq(profiles.userId, id))
     .returning()
     .all();
 
@@ -123,16 +49,16 @@ export async function patchUserRole(
   return user[0];
 }
 
-export async function patchUserCity(
+export async function patchProfileCity(
   id: string,
   cityName: string
-): Promise<User | null> {
+): Promise<Profile | null> {
   const city = await getCity(cityName);
 
   const user = await db
-    .update(users)
+    .update(profiles)
     .set({ cityId: city?.id })
-    .where(eq(users.userId, id))
+    .where(eq(profiles.userId, id))
     .returning().
     all();
 
@@ -143,14 +69,14 @@ export async function patchUserCity(
   return user[0];
 }
 
-export async function patchUserDOB(
+export async function patchProfileIdentity(
   id: string,
-  dob: string
-): Promise<User | null> {
+  identity: string,
+): Promise<Profile | null> {
   const user = await db
-    .update(users)
-    .set({ dateOfBirth: dob })
-    .where(eq(users.userId, id))
+    .update(profiles)
+    .set({ identity: identity })
+    .where(eq(profiles.userId, id))
     .returning()
     .all();
 
@@ -161,29 +87,7 @@ export async function patchUserDOB(
   return user[0];
 }
 
-export async function patchUserIdentity(
-  id: string,
-  identity: "non-binary" | "transgender" | "other" | null,
-  otherIdentity: string | null
-): Promise<User | null> {
-  if (identity !== "other") {
-    otherIdentity = null;
-  }
-  const user = await db
-    .update(users)
-    .set({ identity: identity, otherIdentity: otherIdentity })
-    .where(eq(users.userId, id))
-    .returning()
-    .all();
-
-  if (user.length !== 1) {
-    return null;
-  }
-
-  return user[0];
-}
-
-export async function patchUserPronouns(
+export async function patchProfilePronouns(
   id: string,
   pronouns:
     | "they/them/theirs"
@@ -192,14 +96,14 @@ export async function patchUserPronouns(
     | "custom"
     | null,
   customPronouns: string | null
-): Promise<User | null> {
+): Promise<Profile | null> {
   if (pronouns !== "custom") {
     customPronouns = null;
   }
   const user = await db
-    .update(users)
-    .set({ pronouns: pronouns, customPronouns: customPronouns })
-    .where(eq(users.userId, id))
+    .update(profiles)
+    .set({ pronouns: pronouns })
+    .where(eq(profiles.userId, id))
     .returning()
     .all();
 
