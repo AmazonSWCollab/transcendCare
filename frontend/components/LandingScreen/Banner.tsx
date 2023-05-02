@@ -8,7 +8,7 @@ const Banner = () => {
         <p className="font-bold text-[2rem]">TranscendCare</p>
       </div>
       <p className="font-light text-center text-xl mt-10">
-        Transgender Centered Healthcare
+        Transgender Centered Platform
       </p>
     </div>
   );
