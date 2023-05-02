@@ -8,30 +8,14 @@ interface location {
   latitude: number;
   longitude: number;
 }
-const MyLocation = () => {
-  const initState: geoLocation = {
-    geometry: {
-      type: "",
-      coordinates: [],
-    },
-    properties: {
-      category: "",
-      city: "",
-      country: "",
-      country_code: "",
-      county: "",
-      house_number: "",
-      label: "",
-      macroregion: "",
-      name: "",
-      postcode: "",
-      score: 0,
-      street: "",
-      town: "",
-      type: "",
-    },
-  };
-  const [geoLocation, setGeoLocation] = useState<geoLocation>(initState);
+interface MyLocationProps {
+  geoLocation: geoLocation;
+  setGeoLocation: React.Dispatch<React.SetStateAction<geoLocation>>;
+}
+const MyLocation: React.FC<MyLocationProps> = ({
+  geoLocation,
+  setGeoLocation,
+}) => {
   const [location, setLocation] = useState<location>();
 
   const options = {

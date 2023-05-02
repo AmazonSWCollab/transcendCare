@@ -13,6 +13,10 @@ export default function HealthCareLayout({
 }) {
   return (
     <section className="min-h-screen">
+      <link
+        href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css"
+        rel="stylesheet"
+      />
       <HeaderNav />
       {children}
     </section>
