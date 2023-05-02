@@ -1,6 +1,6 @@
-import { db } from '../../db/index';
+import { db } from '../../index';
 import { eq, and } from 'drizzle-orm';
-import { admins } from "../../db/schema/admin";
+import { admins } from "../../schema/admin";
 import bcrypt from 'bcrypt';
 
 const saltRounds = 12;

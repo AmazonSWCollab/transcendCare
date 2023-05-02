@@ -11,9 +11,9 @@ import {
   updateIdentity,
   updatePronouns,
   updateUser,
-} from "../../lib/account";
+} from "../../db/handlers/account";
 
-const userRouter: FastifyPluginAsyncTypebox = async (
+const accountRoutes: FastifyPluginAsyncTypebox = async (
   fastify,
   _opts
 ): Promise<void> => {
@@ -234,4 +234,4 @@ const userRouter: FastifyPluginAsyncTypebox = async (
   );
 };
 
-export default userRouter;
+export default accountRoutes;

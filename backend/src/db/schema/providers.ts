@@ -20,10 +20,10 @@ export const providers = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
   },
   (providers) => ({
-    uniqueName: index("name").on(providers.name),
-    uniqueEmail: index("email").on(providers.email),
-    uniquePhone: index("phone").on(providers.phone),
-    uniqueWebsite: index("website").on(providers.website),
+    nameIndex: index("name").on(providers.name),
+    emailIndex: index("email").on(providers.email),
+    phoneIndex: index("phone").on(providers.phone),
+    websiteIndex: index("website").on(providers.website),
   })
 );
 

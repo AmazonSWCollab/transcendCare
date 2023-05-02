@@ -1,6 +1,6 @@
-import { db } from "../../db/index";
+import { db } from "../../index";
 import { eq } from "drizzle-orm";
-import { Account, accounts } from "../../db/schema/accounts";
+import { Account, accounts } from "../../schema/accounts";
 
 /**
  * This file contains all database accessor functions for

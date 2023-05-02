@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { db } from "../../db";
-import { providers, Provider } from "../../db/schema/providers";
+import { db } from "../../index";
+import { providers, Provider } from "../../schema/providers";
 
 export async function getProvider(
   providerName: string

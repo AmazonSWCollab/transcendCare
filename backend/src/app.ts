@@ -28,3 +28,4 @@ const app: FastifyPluginAsync<AppOptions> = async (
 
 export default app;
 export { app, options };
+
