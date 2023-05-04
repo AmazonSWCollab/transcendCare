@@ -14,10 +14,11 @@ interface DrizzlePluginOptions {}
 const drizzlePlugin: FastifyPluginAsync<DrizzlePluginOptions> = fp(
   async (fastify) => {
     fastify.decorate("db", db);
-    fastify.addHook("onClose", async (server) => {
+    fastify.addHook("onClose", async (_server) => {
       console.info(`Disconnected from database: ${process.env.DATABASE_URL}`);
     });
   }
 );
 
 export default drizzlePlugin;
+
