@@ -1,4 +1,4 @@
-package main
+package scraper
 
 import (
 	"encoding/json"
@@ -15,10 +15,7 @@ import (
 )
 
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	
 }
 
 type provider struct {
@@ -123,8 +120,14 @@ func handler(w *fiber.Ctx) error {
 	return w.Send(b)
 }
 
-func main() {
-	app := fiber.New()
+func RunApp() error {
+	err := godotenv.Load()
+	
+  if err != nil {
+		return err
+	}
+
+  app := fiber.New()
 
 	app.Use(func(c *fiber.Ctx) error {
 		c.Set("Content-Type", "application/json")
@@ -133,5 +136,7 @@ func main() {
 
 	app.Get("/api/v1/providers", handler)
 
-	log.Fatal(app.Listen(":4041"))
+	app.Listen(":4041")
+
+  return nil
 }
