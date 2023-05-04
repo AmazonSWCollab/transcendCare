@@ -5,7 +5,7 @@ import (
   "database/sql"
   "fmt"
 
-  "github.com/oscisn93/transcendCare/backend/provider/database/providers"
+  "github.com/AmazonSWCollab/transcendCare/backend/provider/database/providers"
   _ "github.com/lib/pq"
 )
 

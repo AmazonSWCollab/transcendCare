@@ -1,7 +1,7 @@
 package main
 
 import (
-  "github.com/oscisn93/transcedCare/backend/provider/scraper"
+  "github.com/AmazonSWCollab/transcedCare/backend/provider/scraper"
 )
 
 func main() {
