@@ -114,4 +114,3 @@ func Handler(w *fiber.Ctx) error {
 	}
 	return w.Send(b)
 }
-
