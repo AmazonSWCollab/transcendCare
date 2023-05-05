@@ -11,12 +11,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 )
-
-func init() {
-	
-}
 
 type provider struct {
 	Title    string
@@ -54,7 +49,7 @@ type Feature struct {
 	Contexts   []Context      `json:"context"`
 }
 
-func handler(w *fiber.Ctx) error {
+func Handler(w *fiber.Ctx) error {
 	URL := "https://www.circlemedical.com/circle-locations"
 
 	c := colly.NewCollector(
@@ -120,23 +115,3 @@ func handler(w *fiber.Ctx) error {
 	return w.Send(b)
 }
 
-func RunApp() error {
-	err := godotenv.Load()
-	
-  if err != nil {
-		return err
-	}
-
-  app := fiber.New()
-
-	app.Use(func(c *fiber.Ctx) error {
-		c.Set("Content-Type", "application/json")
-		return c.Next()
-	})
-
-	app.Get("/api/v1/providers", handler)
-
-	app.Listen(":4041")
-
-  return nil
-}
