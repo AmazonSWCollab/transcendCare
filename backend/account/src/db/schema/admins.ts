@@ -1,23 +1,25 @@
 import type { InferModel } from 'drizzle-orm';
 import {
-  text,
-  integer,
-  sqliteTable,
+  int,
+  serial,
+  varchar,
+  mysqlTable,
   foreignKey
-} from 'drizzle-orm/sqlite-core';
+} from 'drizzle-orm/mysql-core';
 import { accounts } from './accounts';
-export const admins = sqliteTable(
+
+export const admins = mysqlTable(
   'admins',
   {
-    id: integer('id').primaryKey(),
-    accountId: integer('account_id').notNull(),
-    password: text('password').notNull()
+    id: serial('id').primaryKey(),
+    accountId: int('account_id').notNull(),
+    password: varchar('password', { length: 256 }).notNull()
   },
   (admins) => ({
-    accountIdFK: foreignKey(() => ({
+    accountIdFK: foreignKey(({
       columns: [admins.accountId],
       foreignColumns: [accounts.id]
-    }))
+    })),
   }),
 );
 

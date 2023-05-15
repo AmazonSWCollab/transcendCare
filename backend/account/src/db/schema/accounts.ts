@@ -1,10 +1,10 @@
 import type { InferModel } from "drizzle-orm";
 import {
-  text,
-  integer,
-  sqliteTable,
+  varchar,
+  int,
+  mysqlTable,
   index,
-} from "drizzle-orm/sqlite-core";
+} from "drizzle-orm/mysql-core";
 
 export const accounts = sqliteTable(
   "accounts",
@@ -26,3 +26,4 @@ export const accounts = sqliteTable(
 
 export type Account = InferModel<typeof accounts>;
 export type NewAccount = InferModel<typeof accounts, "insert">;
+
