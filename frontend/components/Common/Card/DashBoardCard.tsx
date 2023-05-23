@@ -4,7 +4,7 @@ import React from "react";
 interface DashBoardCardProps {
   header?: string;
   title: string;
-  subtitle: string;
+  subtitle: any;
   color: string;
   shadow?: string;
   custom?: string;
