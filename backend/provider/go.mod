@@ -3,7 +3,6 @@ module github.com/AmazonSWCollab/transcendCare
 go 1.20
 
 require (
-	github.com/AmazonSWCollab/transcendCare/backend/provider v0.0.0-20230505031831-6a1d1f8472b2
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/gofiber/fiber/v2 v2.46.0
 	github.com/gofiber/swagger v0.1.12

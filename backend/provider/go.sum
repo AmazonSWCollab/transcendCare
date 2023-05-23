@@ -1,6 +1,4 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
-github.com/AmazonSWCollab/transcendCare/backend/provider v0.0.0-20230505031831-6a1d1f8472b2 h1:2fjzhEozixTxYYKikULHdo7pldNZSmKKe/aC9cDZ+BI=
-github.com/AmazonSWCollab/transcendCare/backend/provider v0.0.0-20230505031831-6a1d1f8472b2/go.mod h1:lJbkanSYn0g0mmV90BzekLlikqkHuoQ2u0MyU8vv+Vg=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
