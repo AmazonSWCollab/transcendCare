@@ -29,7 +29,7 @@ func RunApp() error {
 		c.Next()
 	})
 
-	app.Get("/swagger/*", swagger.HandlerDefault)
+	app.Get("/docs/*", swagger.HandlerDefault)
 
 	app.Get("/api/v1/providers", scraper.Handler)
 
