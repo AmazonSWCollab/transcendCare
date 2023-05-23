@@ -1,7 +1,7 @@
 package main
 
 import (
-  "github.com/AmazonSWCollab/transcenCare/backend/provider/scraper"
+  "github.com/AmazonSWCollab/transcendCare/backend/provider/scraper"
   
   "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
