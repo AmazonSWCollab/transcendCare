@@ -14,6 +14,7 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
@@ -141,7 +142,10 @@ func main() {
 		GETOnly: true,
 	})
 
-	// app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+	}))
+
 	app.Use(logger.New())
 
 	app.Use(func(c *fiber.Ctx) error {
@@ -176,7 +180,7 @@ func main() {
 			providerArray := make([]providers.Provider, 0)
 			c.OnHTML("a.crm-location-item.w-inline-block", func(e *colly.HTMLElement) {
 				p := providers.Provider{}
-				p.Title = e.ChildText("h1.location")
+				p.Title = fmt.Sprintf("Circle Medical - %s", e.ChildText("h1.location"))
 				e.ForEach("div.locationspage-icon-text", func(i int, h *colly.HTMLElement) {
 					if i == 1 {
 						p.Address = h.ChildText("p.paragraph-small")
