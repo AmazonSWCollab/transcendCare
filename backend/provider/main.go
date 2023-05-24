@@ -164,7 +164,7 @@ func main() {
 
 		providerArray, err := providers.ProviderStore.Providers(db)
 
-		if err != nil {
+		if err != nil || len(providerArray) == 0 {
 			// will only be called when the request the store is empty
 			URL := "https://www.circlemedical.com/circle-locations"
 
@@ -227,6 +227,9 @@ func main() {
 
 			c.Visit(URL)
 
+			// then return marshalled providers
+			b, err := json.Marshal(providerArray)
+
 			// add providers to database first
 			for _, p := range providerArray {
 				err := providers.ProviderStore.NewProvider(db, &p)
@@ -235,8 +238,7 @@ func main() {
 					return err
 				}
 			}
-			// then return marshalled providers
-			b, err := json.Marshal(providerArray)
+
 			if err != nil {
 				log.Println("failed to serialize response:", err)
 				return err
