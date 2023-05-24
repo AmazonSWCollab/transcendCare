@@ -23,3 +23,10 @@ export interface geoLocation {
   geometry: geoLocationGeometry;
   properties: geoLocationProperties;
 }
+
+export interface HealthcareType {
+  title: string;
+  address: string;
+  id: number;
+  location: number[];
+}

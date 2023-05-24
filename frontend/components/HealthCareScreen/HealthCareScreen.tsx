@@ -1,8 +1,11 @@
 "use client";
-import { geoLocation } from "@/interface/interface";
-import React, { useState } from "react";
+import { geoLocation, HealthcareType } from "@/interface/interface";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import HealthcareMap from "./HealthcareMap";
+import providers from "../../utils/providers.json";
 import MyLocation from "./MyLocation";
+import getProviders from "@/utils/getProviders";
 
 const HealthCareScreen = () => {
   const initState: geoLocation = {
@@ -28,13 +31,18 @@ const HealthCareScreen = () => {
     },
   };
   const [geoLocation, setGeoLocation] = useState<geoLocation>(initState);
+  const [healthcareLocation, setHealthcare] =
+    useState<HealthcareType[]>(providers);
   return (
     <section className="mt-8 min-h-screen">
       <MyLocation geoLocation={geoLocation} setGeoLocation={setGeoLocation} />
       {geoLocation == initState ? (
         <p className="mt-4">Map Loading...</p>
       ) : (
-        <HealthcareMap geoLocation={geoLocation} />
+        <HealthcareMap
+          geoLocation={geoLocation}
+          providerLocation={healthcareLocation}
+        />
       )}
     </section>
   );
