@@ -5,6 +5,6 @@ sql:
     schema: "schema.sql"
     gen:
       go:
-        package: "providers"
-        out: "providers"
+        package: "postgres"
+        out: "."
 

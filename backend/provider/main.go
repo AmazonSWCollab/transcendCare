@@ -9,6 +9,9 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/AmazonSWCollab/transcendCare/providers"
+	"github.com/AmazonSWCollab/transcendCare/providers/database"
+
 	"github.com/gocolly/colly/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -16,12 +19,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/swaggo/swag"
 )
-
-type provider struct {
-	Title    string
-	Address  string
-	Location []float32
-}
 
 type Property struct {
 	Accuracy  string `json:"accuracy"`
@@ -47,7 +44,7 @@ type Feature struct {
 	Properties Property       `json:"properties"`
 	Text       string         `json:"text"`
 	PlaceName  string         `json:"place_name"`
-	Center     []float32      `json:"center"`
+	Center     []float64      `json:"center"`
 	Geometry   GeoCoordinates `json:"geometry"`
 	Address    string         `json:"address"`
 	Contexts   []Context      `json:"context"`
@@ -155,67 +152,102 @@ func main() {
 	swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
 	app.Get("/docs/*", swagger.HandlerDefault)
 	app.Get("/api/v1/providers", func(w *fiber.Ctx) error {
-		URL := "https://www.circlemedical.com/circle-locations"
+		dbPath := os.Getenv("DATABASE_URL")
+		if dbPath == "" {
+			return fmt.Errorf("DATABASE_URL not set")
+		}
 
-		c := colly.NewCollector(
-			colly.AllowedDomains("www.circlemedical.com", "circlemedical.com"),
-			colly.CacheDir(".colly.cache"),
-		)
+		db, err := database.NewPostgres(dbPath)
+		if err != nil {
+			log.Fatal("Connection to database:", err)
+		}
 
-		providers := make([]provider, 0)
-		c.OnHTML("a.crm-location-item.w-inline-block", func(e *colly.HTMLElement) {
-			p := provider{}
-			p.Title = e.ChildText("h1.location")
-			e.ForEach("div.locationspage-icon-text", func(i int, h *colly.HTMLElement) {
-				if i == 1 {
-					p.Address = h.ChildText("p.paragraph-small")
-					return
+		providerArray, err := providers.ProviderStore.Providers(db)
+
+		if err != nil || len(providerArray) == 0 {
+			// will only be called when the request the store is empty
+			URL := "https://www.circlemedical.com/circle-locations"
+
+			c := colly.NewCollector(
+				colly.AllowedDomains("www.circlemedical.com", "circlemedical.com"),
+				colly.CacheDir(".colly.cache"),
+			)
+
+			providerArray := make([]providers.Provider, 0)
+			c.OnHTML("a.crm-location-item.w-inline-block", func(e *colly.HTMLElement) {
+				p := providers.Provider{}
+				p.Title = e.ChildText("h1.location")
+				e.ForEach("div.locationspage-icon-text", func(i int, h *colly.HTMLElement) {
+					if i == 1 {
+						p.Address = h.ChildText("p.paragraph-small")
+						return
+					}
+				})
+				escapedSearchText := url.QueryEscape(p.Address)
+				// CHANGE THIS TO YOUR MAPBOX API KEY
+				path := fmt.Sprintf("https://api.mapbox.com/geocoding/v5/mapbox.places/%s.json?access_token=%s", escapedSearchText, os.Getenv("MAPBOX_TOKEN"))
+
+				mapbox_response, err := http.Get(path)
+
+				if err != nil {
+					fmt.Print(err.Error())
+					os.Exit(1)
 				}
+
+				geodata, err := io.ReadAll(mapbox_response.Body)
+				if err != nil {
+					log.Fatal(err)
+				}
+				var result struct {
+					Type        string    `json:"type"`
+					Query       []string  `json:"query"`
+					Features    []Feature `json:"features"`
+					Attribution string    `json:"attribuition"`
+				}
+
+				json.Unmarshal(geodata, &result)
+
+				for _, r := range result.Features {
+					p.Location = r.Center
+					break
+				}
+				// TODO: figure out why the following line doesn't work
+				// p.Location = result.Features[0].Center
+
+				providerArray = append(providerArray, p)
 			})
-			escapedSearchText := url.QueryEscape(p.Address)
-			// CHANGE THIS TO YOUR MAPBOX API KEY
-			path := fmt.Sprintf("https://api.mapbox.com/geocoding/v5/mapbox.places/%s.json?access_token=%s", escapedSearchText, os.Getenv("MAPBOX_TOKEN"))
 
-			mapbox_response, err := http.Get(path)
+			c.OnResponse(func(r *colly.Response) {
+				log.Println("Response received", r.StatusCode)
+			})
+
+			c.OnError(func(r *colly.Response, err error) {
+				log.Println("Error:", r.StatusCode, err)
+			})
+
+			c.Visit(URL)
+
+			// then return marshalled providers
+			b, err := json.Marshal(providerArray)
+
+			// add providers to database first
+			for _, p := range providerArray {
+				err := providers.ProviderStore.NewProvider(db, &p)
+				if err != nil {
+					log.Println("failed to add provider:", err)
+					return err
+				}
+			}
 
 			if err != nil {
-				fmt.Print(err.Error())
-				os.Exit(1)
+				log.Println("failed to serialize response:", err)
+				return err
 			}
 
-			geodata, err := io.ReadAll(mapbox_response.Body)
-			if err != nil {
-				log.Fatal(err)
-			}
-			var result struct {
-				Type        string    `json:"type"`
-				Query       []string  `json:"query"`
-				Features    []Feature `json:"features"`
-				Attribution string    `json:"attribuition"`
-			}
-
-			json.Unmarshal(geodata, &result)
-
-			for _, r := range result.Features {
-				p.Location = r.Center
-				break
-			}
-			// TODO: figure out why the following line doesn't work
-			// p.Location = result.Features[0].Center
-			providers = append(providers, p)
-		})
-
-		c.OnResponse(func(r *colly.Response) {
-			log.Println("Response received", r.StatusCode)
-		})
-
-		c.OnError(func(r *colly.Response, err error) {
-			log.Println("Error:", r.StatusCode, err)
-		})
-
-		c.Visit(URL)
-
-		b, err := json.Marshal(providers)
+			return w.Send(b)
+		}
+		// otherwise return providers from database
+		b, err := json.Marshal(providerArray)
 		if err != nil {
 			log.Println("failed to serialize response:", err)
 			return err
