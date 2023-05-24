@@ -24,7 +24,6 @@ const HealthcareMap: React.FC<MapProps> = ({
     setCurrentPlaceId(id);
     setViewport({ ...viewport, latitude: lat, longitude: long });
   };
-  console.log(providerLocation);
   return (
     <div className="my-8 h-[400px]">
       <Map
