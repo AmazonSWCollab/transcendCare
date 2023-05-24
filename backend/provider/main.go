@@ -202,6 +202,7 @@ func main() {
 			}
 			// TODO: figure out why the following line doesn't work
 			// p.Location = result.Features[0].Center
+
 			providers = append(providers, p)
 		})
 
