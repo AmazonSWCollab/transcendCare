@@ -59,6 +59,21 @@ func postgresError(err error) error {
 	return err
 }
 
+func (p *Postgres) NewProvider(provider *providers.Provider) error {
+	err := p.q.CreateProvider(context.Background(), postgres.CreateProviderParams{
+		Title:     provider.Title,
+		Address:   provider.Address,
+		Longitude: provider.Location[0],
+		Latitude:  provider.Location[1],
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // func (p *Postgres) Provider(id int) (*providers.Provider, error) {
 // 	provider, err := p.q.GetProvider(context.Background(), id)
 // 	if err != nil {

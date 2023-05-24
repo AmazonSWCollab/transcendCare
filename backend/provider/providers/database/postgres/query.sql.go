@@ -9,6 +9,31 @@ import (
 	"context"
 )
 
+const createProvider = `-- name: CreateProvider :exec
+INSERT INTO providers (
+  title, address, longitude, latitude
+) VALUES (
+  $1, $2, $3, $4
+)
+`
+
+type CreateProviderParams struct {
+	Title     string
+	Address   string
+	Longitude float64
+	Latitude  float64
+}
+
+func (q *Queries) CreateProvider(ctx context.Context, arg CreateProviderParams) error {
+	_, err := q.db.ExecContext(ctx, createProvider,
+		arg.Title,
+		arg.Address,
+		arg.Longitude,
+		arg.Latitude,
+	)
+	return err
+}
+
 const getProviders = `-- name: GetProviders :many
 SELECT id, title, address, longitude, latitude FROM providers
 ORDER BY title

@@ -31,8 +31,8 @@ type ProviderStore interface {
 
 	// GetProviders returns all providers
 	Providers() ([]Provider, error)
-	// // CreateProvider creates a new provider
-	// CreateProvider(p *Provider) error
+	// // NewProvider creates a new provider
+	NewProvider(p *Provider) error
 	// // UpdateProvider updates an existing provider
 	// UpdateProvider(p *Provider) error
 	// // DeleteProvider deletes a provider by id

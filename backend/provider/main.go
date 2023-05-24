@@ -20,12 +20,6 @@ import (
 	"github.com/swaggo/swag"
 )
 
-type provider struct {
-	Title    string
-	Address  string
-	Location []float32
-}
-
 type Property struct {
 	Accuracy  string `json:"accuracy"`
 	Mapbox_id string `json:"mapbox_id"`
@@ -50,7 +44,7 @@ type Feature struct {
 	Properties Property       `json:"properties"`
 	Text       string         `json:"text"`
 	PlaceName  string         `json:"place_name"`
-	Center     []float32      `json:"center"`
+	Center     []float64      `json:"center"`
 	Geometry   GeoCoordinates `json:"geometry"`
 	Address    string         `json:"address"`
 	Contexts   []Context      `json:"context"`
@@ -168,7 +162,7 @@ func main() {
 			log.Fatal("Connection to database:", err)
 		}
 
-		providers, err := providers.ProviderStore.Providers(db)
+		providerArray, err := providers.ProviderStore.Providers(db)
 
 		if err != nil {
 			// will only be called when the request the store is empty
@@ -179,9 +173,9 @@ func main() {
 				colly.CacheDir(".colly.cache"),
 			)
 
-			providers := make([]provider, 0)
+			providerArray := make([]providers.Provider, 0)
 			c.OnHTML("a.crm-location-item.w-inline-block", func(e *colly.HTMLElement) {
-				p := provider{}
+				p := providers.Provider{}
 				p.Title = e.ChildText("h1.location")
 				e.ForEach("div.locationspage-icon-text", func(i int, h *colly.HTMLElement) {
 					if i == 1 {
@@ -220,7 +214,7 @@ func main() {
 				// TODO: figure out why the following line doesn't work
 				// p.Location = result.Features[0].Center
 
-				providers = append(providers, p)
+				providerArray = append(providerArray, p)
 			})
 
 			c.OnResponse(func(r *colly.Response) {
@@ -233,14 +227,25 @@ func main() {
 
 			c.Visit(URL)
 
-			b, err := json.Marshal(providers)
+			// add providers to database first
+			for _, p := range providerArray {
+				err := providers.ProviderStore.NewProvider(db, &p)
+				if err != nil {
+					log.Println("failed to add provider:", err)
+					return err
+				}
+			}
+			// then return marshalled providers
+			b, err := json.Marshal(providerArray)
 			if err != nil {
 				log.Println("failed to serialize response:", err)
 				return err
 			}
+
 			return w.Send(b)
 		}
-		b, err := json.Marshal(providers)
+		// otherwise return providers from database
+		b, err := json.Marshal(providerArray)
 		if err != nil {
 			log.Println("failed to serialize response:", err)
 			return err
