@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/AmazonSWCollab/transcendCare/providers"
+  "github.com/AmazonSWCollab/transcendCare/providers/docs"
 	"github.com/AmazonSWCollab/transcendCare/providers/database"
 
 	"github.com/gocolly/colly/v2"
@@ -18,7 +19,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
 	"github.com/joho/godotenv"
-	"github.com/swaggo/swag"
 )
 
 type Property struct {
@@ -51,86 +51,6 @@ type Feature struct {
 	Contexts   []Context      `json:"context"`
 }
 
-const docTemplate = `{
-    "schemes": {{ marshal .Schemes }},
-    "swagger": "2.0",
-    "info": {
-        "description": "{{escape .Description}}",
-        "title": "{{.Title}}",
-        "contact": {
-            "name": "Big O"
-        },
-        "license": {
-            "name": "MIT"
-        },
-        "version": "{{.Version}}"
-    },
-    "host": "{{.Host}}",
-    "basePath": "{{.BasePath}}",
-    "paths": {
-        "/api/v1/providers": {
-            "get": {
-                "description": "fetch every provider available.",
-                "consumes": [
-                    "*/*"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "providers"
-                ],
-                "summary": "Get all providers.",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/providers.provider"
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "definitions": {
-        "providers.provider": {
-            "type": "object",
-            "properties": {
-                "title": {
-                    "type": "string"
-                },
-                "address": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "int"
-                },
-                "location": {
-                    "type": "array",
-                    "items": {
-                      "type": "number"
-                    }
-                }
-            }
-        }
-    }
-}`
-
-// SwaggerInfo holds exported Swagger Info so clients can modify it
-var SwaggerInfo = &swag.Spec{
-	Version:          "2.0",
-	Host:             "",
-	BasePath:         "/",
-	Schemes:          []string{},
-	Title:            "TranscendCare Provider service",
-	Description:      "API documentation",
-	InfoInstanceName: "swagger",
-	SwaggerTemplate:  docTemplate,
-}
-
 func main() {
 	err := godotenv.Load()
 
@@ -153,8 +73,9 @@ func main() {
 		return c.Next()
 	})
 
-	swag.Register(SwaggerInfo.InstanceName(), SwaggerInfo)
-	app.Get("/docs/*", swagger.HandlerDefault)
+  docs.init()
+
+  app.Get("/docs/*", swagger.HandlerDefault)
 	app.Get("/api/v1/providers", func(w *fiber.Ctx) error {
 		dbPath := os.Getenv("DATABASE_URL")
 		if dbPath == "" {
