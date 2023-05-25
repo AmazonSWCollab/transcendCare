@@ -12,8 +12,8 @@ function getRandomQuote(): Quote {
   const now = new Date().getTime();
 
   // Check if a quote is cached and not expired
-  const cachedQuote = localStorage.getItem(CACHE_KEY);
-  const expirationTime = localStorage.getItem(CACHE_EXPIRATION_KEY);
+  const cachedQuote = sessionStorage.getItem(CACHE_KEY);
+  const expirationTime = sessionStorage.getItem(CACHE_EXPIRATION_KEY);
 
   if (cachedQuote && expirationTime && now < Number(expirationTime)) {
     return JSON.parse(cachedQuote);
@@ -24,8 +24,11 @@ function getRandomQuote(): Quote {
   const newQuote: Quote = { text: affirmations[randomIndex] };
 
   // Cache the new quote and set the expiration time to 24 hours from now
-  localStorage.setItem(CACHE_KEY, JSON.stringify(newQuote));
-  localStorage.setItem(CACHE_EXPIRATION_KEY, String(now + 24 * 60 * 60 * 1000));
+  sessionStorage.setItem(CACHE_KEY, JSON.stringify(newQuote));
+  sessionStorage.setItem(
+    CACHE_EXPIRATION_KEY,
+    String(now + 24 * 60 * 60 * 1000),
+  );
 
   return newQuote;
 }

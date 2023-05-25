@@ -1,0 +1,140 @@
+[
+  {
+    "title": "Circle Medical - Arizona - Scottsdale",
+    "address": "9700 N. 91st Stm Ste A-115, Scottsdale, AZ 85258",
+    "id": 24,
+    "location": [-111.883824, 33.57363]
+  },
+  {
+    "title": "Circle Medical - California - Beverly Hills",
+    "address": "415 N Crescent Dr, #320, Beverly Hills, CA 90210",
+    "id": 25,
+    "location": [-118.40056, 34.0715]
+  },
+  {
+    "title": "Circle Medical - California - San Francisco",
+    "address": "333 1st Street #A, San Francisco, CA, 94105",
+    "id": 26,
+    "location": [-122.39364, 37.78703]
+  },
+  {
+    "title": "Circle Medical - Colorado - Denver",
+    "address": "4610 S Ulster St, Suite 150, Denver, CO 80237",
+    "id": 27,
+    "location": [-104.89682, 39.63157]
+  },
+  {
+    "title": "Circle Medical - District of Columbia - Washington",
+    "address": "1331 H St NW, Suite 200, Washington, DC 20005",
+    "id": 28,
+    "location": [-77.03067, 38.90054]
+  },
+  {
+    "title": "Circle Medical - Florida - Aventura",
+    "address": "2820 NE 214th St, Suite 801, Aventura, FL 33180",
+    "id": 29,
+    "location": [-80.14493, 25.97308]
+  },
+  {
+    "title": "Circle Medical - Florida - Palm Beach Gardens",
+    "address": "4440 PGA Blvd, Suite 600, Palm Beach Gardens, FL 33410",
+    "id": 30,
+    "location": [-80.1046, 26.83819]
+  },
+  {
+    "title": "Circle Medical - Florida - Tampa",
+    "address": "400 North Tampa Street 15th Floor Tampa, FL 33602",
+    "id": 31,
+    "location": [-82.459268, 27.947642]
+  },
+  {
+    "title": "Circle Medical - Illinois - Deer Park",
+    "address": "21660 W Field Pkwy, Deer Park, IL 60010",
+    "id": 32,
+    "location": [-88.05716, 42.15853]
+  },
+  {
+    "title": "Circle Medical - Maryland - Rockville",
+    "address": "1 Research Court, Suite 450, Rockville, MD 20850",
+    "id": 33,
+    "location": [-77.18585, 39.10602]
+  },
+  {
+    "title": "Circle Medical - Massachusetts - Boston",
+    "address": "265 Franklin Street, Suite 1702, Boston, MA 02110",
+    "id": 34,
+    "location": [-71.05359, 42.356605]
+  },
+  {
+    "title": "Circle Medical - Nevada - Las Vegas",
+    "address": "9550 S Eastern Ave, Suite 253, Las Vegas, NV 89123",
+    "id": 35,
+    "location": [-115.11862, 36.01553]
+  },
+  {
+    "title": "Circle Medical - New Jersey - Marlton",
+    "address": "525 Rt 73 N, Suite 117, Marlton, NJ 08053",
+    "id": 36,
+    "location": [-74.923025, 39.87579]
+  },
+  {
+    "title": "Circle Medical - New Mexico - Edgewood",
+    "address": "215 Cowboy Way, Edgewood, NM 87015",
+    "id": 37,
+    "location": [-106.22638, 35.07805]
+  },
+  {
+    "title": "Circle Medical - New York - New York",
+    "address": "245 5th Ave, Suite 322, New York, NY 10016",
+    "id": 38,
+    "location": [-73.98726, 40.74444]
+  },
+  {
+    "title": "Circle Medical - Pennsylvania - Philadelphia",
+    "address": "2418 E York St., Philadelphia, PA 19125",
+    "id": 39,
+    "location": [-75.12443, 39.97765]
+  },
+  {
+    "title": "Circle Medical - Tennessee - Nashville",
+    "address": "315 Deaderick St, Ste 1550, Nashville, TN 37238",
+    "id": 40,
+    "location": [-86.779385, 36.16569]
+  },
+  {
+    "title": "Circle Medical - Texas - Houston",
+    "address": "5373 W Alabama St, Suite 204, Houston, TX 77056",
+    "id": 41,
+    "location": [-95.47007, 29.73755]
+  },
+  {
+    "title": "Circle Medical - Texas - McKinney",
+    "address": "1400 N Coit Rd, Suite 302, Mckinney, TX 75071",
+    "id": 42,
+    "location": [-96.6504, 33.23747]
+  },
+  {
+    "title": "Circle Medical - Utah - Salt Lake City",
+    "address": "350 E 400 S, #220, Salt Lake City, UT 84111",
+    "id": 43,
+    "location": [-111.880944, 40.759783]
+  },
+  {
+    "title": "Circle Medical - Virginia - Alexandria",
+    "address": "2800 Eisenhower Ave, Suite 220, Alexandria, VA 22314",
+    "id": 44,
+    "location": [-77.08156, 38.801645]
+  },
+  {
+    "title": "Circle Medical - Washington - Silverdale",
+    "address": "9220 Ridgetop Blvd #100 Silverdale, WA 98383",
+    "id": 45,
+    "location": [-122.68655, 47.653825]
+  },
+  {
+    "title": "Circle Medical - Wisconsin - Milwaukee",
+    "address": "790 N Milwaukee St, Suite 313, Milwaukee, WI 53202",
+    "id": 46,
+    "location": [-87.906405, 43.040955]
+  }
+]
